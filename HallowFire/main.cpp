@@ -3,11 +3,11 @@
 
 using namespace std;
 
-class Platform {
+class Platform : public sf::RectangleShape {
 public:
 	// Variables
 	static int objectCount;
-	sf::RectangleShape rectangle;
+	//sf::RectangleShape rectangle;
 	int length;
 	int breadth;
 
@@ -16,14 +16,14 @@ public:
 		objectCount++;
 		length = 200;
 		breadth = 40;
-		rectangle.setSize(sf::Vector2f(length, breadth));
-		rectangle.setFillColor(sf::Color::White);
-		setPosition();
+		this->setSize(sf::Vector2f(length, breadth));
+		this->setFillColor(sf::Color::White);
+		setInitialPosition();
 	}
 
 	// Helper Functions
-	void setPosition() {
-		rectangle.setPosition(calculateHorizontalPosition(), 560.f);
+	void setInitialPosition() {
+		this->setPosition(calculateHorizontalPosition(), 560.f);
 	}
 	int calculateHorizontalPosition() {
 		int buffer = 50;
@@ -41,8 +41,12 @@ public:
 };
 int Platform::objectCount = 0;
 
-class Character {
+class Character : public sf::CircleShape {
 public:
+	Character() {
+		this->setRadius(25);
+		this->setFillColor(sf::Color::Cyan);
+	}
 };
 
 class MovingPlatform {
@@ -50,8 +54,8 @@ public:
 
 };
 
-int main()
-{
+int main(){
+
 	// Set initial configuration
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8; // setting the anti-aliasing level, to remove jagged lines
@@ -61,7 +65,7 @@ int main()
 
 	//Defing Entities
 	Platform p1, p2, p3;
-
+	Character c1;
 	//Frame Processing
 	while (window.isOpen())
 	{
@@ -75,10 +79,10 @@ int main()
 		window.clear(sf::Color::Black);
 
 		// Code to draw contents in the frame
-		window.draw(p1.rectangle);
-		window.draw(p2.rectangle);
-		window.draw(p3.rectangle);
-
+		window.draw(p1);
+		window.draw(p2);
+		window.draw(p3);
+		window.draw(c1);
 		// end of the current frame
 		window.display();
 	}
