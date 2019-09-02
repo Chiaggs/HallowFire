@@ -7,7 +7,6 @@ class Platform : public sf::RectangleShape {
 public:
 	// Variables
 	static int objectCount;
-	//sf::RectangleShape rectangle;
 	int length;
 	int breadth;
 
@@ -43,15 +42,51 @@ int Platform::objectCount = 0;
 
 class Character : public sf::CircleShape {
 public:
+	// Variables
+	int radius;
+	int leftpos, toppos;
+
+	// Constructor
 	Character() {
-		this->setRadius(25);
+		radius = 25;
+		this->setRadius(radius);
 		this->setFillColor(sf::Color::Cyan);
+		this->leftpos = 75;
+		this->toppos = 510;
+		this->setPosition(leftpos, toppos);
 	}
 };
 
-class MovingPlatform {
+class MovingPlatform : public sf::RectangleShape {
 public:
 
+	// Variables
+	int length;
+	int breadth;
+	bool towardsLeft;
+
+	// Constrcutor
+	MovingPlatform() {
+		length = 80;
+		breadth = 10;
+		towardsLeft = true;
+		this->setSize(sf::Vector2f(length, breadth));
+		this->setFillColor(sf::Color::Red);
+		this->setPosition(700.f, 545.f);
+	}
+
+	// Public interface functions
+	void processMovement() {
+		int leftpos = this->getPosition().x;
+		if (leftpos <= 0)
+			towardsLeft = false;
+		if (leftpos >= 720)
+			towardsLeft = true;
+		if(towardsLeft)
+			this->move(-5.f, 0.f);
+		else
+			this->move(5.f, 0.f);
+	}
 };
 
 int main(){
@@ -66,6 +101,7 @@ int main(){
 	//Defing Entities
 	Platform p1, p2, p3;
 	Character c1;
+	MovingPlatform mp1;
 	//Frame Processing
 	while (window.isOpen())
 	{
@@ -83,10 +119,12 @@ int main(){
 		window.draw(p2);
 		window.draw(p3);
 		window.draw(c1);
+		window.draw(mp1);
+		mp1.processMovement();
+
 		// end of the current frame
 		window.display();
 	}
-
 
 	return 0;
 }
