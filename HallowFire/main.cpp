@@ -125,13 +125,13 @@ int main(){
 	Platform p1, p2, p3;
 	Character c1;
 	MovingPlatform mp1;
-	/*if (platformTexture.loadFromFile("textures/wooden-texture.jpg")) {
+	if (platformTexture.loadFromFile("Textures/wooden-texture.jpg")) {
 		p1.setTexture(&platformTexture);
 	}
 	else {
 		cout << "Failure Loading texture";
 	}
-	*/
+	
 
 	//Frame Processing
 	while (window.isOpen())
