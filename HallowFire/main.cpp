@@ -55,6 +55,27 @@ public:
 		this->toppos = 510;
 		this->setPosition(leftpos, toppos);
 	}
+
+	//Public interface functions
+	void processKeyboardInput() {
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+			// Code to make the character jump
+			this->move(0, -5);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+			this->move(-3, 0);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+			this->move(3, 0);
+		}
+	}
+
+	void processGravity() {
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+			if(this->getPosition().y <= this->toppos-5)
+				this->move(0, 5);
+		}
+	}
 };
 
 class MovingPlatform : public sf::RectangleShape {
@@ -102,12 +123,12 @@ int main(){
 	Platform p1, p2, p3;
 	Character c1;
 	MovingPlatform mp1;
+
 	//Frame Processing
 	while (window.isOpen())
 	{
 		sf::Event event;
-		while (window.pollEvent(event))
-		{
+		while (window.pollEvent(event)){
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
@@ -121,6 +142,8 @@ int main(){
 		window.draw(c1);
 		window.draw(mp1);
 		mp1.processMovement();
+		c1.processKeyboardInput();
+		c1.processGravity();
 
 		// end of the current frame
 		window.display();
