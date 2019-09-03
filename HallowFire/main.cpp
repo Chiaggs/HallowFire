@@ -110,6 +110,8 @@ public:
 	}
 };
 
+bool processCharacterMovingPlatformCollision(Character, MovingPlatform);
+
 int main(){
 
 	// Set initial configuration
@@ -153,7 +155,10 @@ int main(){
 		mp1.processMovement();
 		c1.processKeyboardInput();
 		c1.processGravity();
-
+		bool collision = processCharacterMovingPlatformCollision(c1, mp1);
+		if (collision) {
+			cout << "Collision Occured!";
+		}
 		// end of the current frame
 		window.display();
 	}
