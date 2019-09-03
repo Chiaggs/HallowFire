@@ -118,11 +118,20 @@ int main(){
 	sf::RenderWindow window;
 	window.create(sf::VideoMode(800, 600), "HallowFire", sf::Style::Default, settings); // Optional thrid arg can be used to specify Window style
 	window.setVerticalSyncEnabled(true); // Setting VSync to true, to prevent screen tearing
+	sf::Texture platformTexture;
+	
 
 	//Defing Entities
 	Platform p1, p2, p3;
 	Character c1;
 	MovingPlatform mp1;
+	/*if (platformTexture.loadFromFile("textures/wooden-texture.jpg")) {
+		p1.setTexture(&platformTexture);
+	}
+	else {
+		cout << "Failure Loading texture";
+	}
+	*/
 
 	//Frame Processing
 	while (window.isOpen())
@@ -148,6 +157,15 @@ int main(){
 		// end of the current frame
 		window.display();
 	}
-
 	return 0;
+}
+
+bool processCharacterMovingPlatformCollision(Character c, MovingPlatform mp) {
+	bool collision = false;
+	sf::FloatRect characterBoundingBox = c.getGlobalBounds();
+	sf::FloatRect movingPlatformBoundingBox = mp.getGlobalBounds();
+	if (characterBoundingBox.intersects(movingPlatformBoundingBox)) {
+		return true;
+	}
+	return collision;
 }
