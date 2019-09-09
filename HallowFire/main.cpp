@@ -111,6 +111,7 @@ public:
 };
 
 bool processCharacterMovingPlatformCollision(Character, MovingPlatform);
+void resizeView(const sf::RenderWindow&, sf::View&);
 
 int main(){
 
@@ -118,10 +119,10 @@ int main(){
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8; // setting the anti-aliasing level, to remove jagged lines
 	sf::RenderWindow window;
-	window.create(sf::VideoMode(800, 600), "HallowFire", sf::Style::Default, settings); // Optional thrid arg can be used to specify Window style
+	window.create(sf::VideoMode(800, 600), "HallowFire", sf::Style::Close | sf::Style::Resize, settings); // Optional thrid arg can be used to specify Window style
 	window.setVerticalSyncEnabled(true); // Setting VSync to true, to prevent screen tearing
 	sf::Texture platformTexture;
-	
+	sf::View view(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(800, 600));
 
 	//Defing Entities
 	Platform p1, p2, p3;
@@ -133,7 +134,8 @@ int main(){
 	else {
 		cout << "Failure Loading texture";
 	}
-	
+	bool gameOver = false;
+	int score = 0;
 
 	//Frame Processing
 	while (window.isOpen())
@@ -142,11 +144,18 @@ int main(){
 		while (window.pollEvent(event)){
 			if (event.type == sf::Event::Closed)
 				window.close();
+			if (event.type == sf::Event::Resized)
+				resizeView(window, view);
 		}
 		// reset the frame
+		view.setCenter(sf::Vector2f(c1.getPosition().x, c1.getPosition().y));
 		window.clear(sf::Color::Black);
+		window.setView(view);
 
 		// Code to draw contents in the frame
+		if (!gameOver) {
+			score++;
+		}
 		window.draw(p1);
 		window.draw(p2);
 		window.draw(p3);
@@ -158,7 +167,9 @@ int main(){
 		bool collision = processCharacterMovingPlatformCollision(c1, mp1);
 		if (collision) {
 			cout << "Collision Occured!";
+			gameOver = true;
 		}
+
 		// end of the current frame
 		window.display();
 	}
@@ -173,4 +184,14 @@ bool processCharacterMovingPlatformCollision(Character c, MovingPlatform mp) {
 		return true;
 	}
 	return collision;
+}
+
+bool processCharacterPlatformCollision(Character c, Platform p) {
+	bool collision = false;
+	return collision;
+}
+
+void resizeView(const sf::RenderWindow& window, sf::View& view) {
+	float aspectRatio = float(window.getSize().x) / float(window.getSize().y);
+	view.setSize(800 * aspectRatio * (6.0 / 8.0), 600);
 }
