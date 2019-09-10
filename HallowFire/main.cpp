@@ -112,6 +112,7 @@ public:
 
 bool processCharacterMovingPlatformCollision(Character, MovingPlatform);
 void resizeView(const sf::RenderWindow&, sf::View&);
+void processScaleToggle(bool&);
 
 int main(){
 
@@ -123,19 +124,29 @@ int main(){
 	window.setVerticalSyncEnabled(true); // Setting VSync to true, to prevent screen tearing
 	sf::Texture platformTexture;
 	sf::View view(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(800, 600));
+	sf::Font font;
 
 	//Defing Entities
 	Platform p1, p2, p3;
 	Character c1;
 	MovingPlatform mp1;
+	bool gameOver = false;
+	bool scaleToggle = false;
+	int score = 0;
+
+	// Initializing entities
 	if (platformTexture.loadFromFile("Textures/wooden-texture.jpg")) {
 		p1.setTexture(&platformTexture);
+		p2.setTexture(&platformTexture);
+		p3.setTexture(&platformTexture);
 	}
 	else {
 		cout << "Failure Loading texture";
 	}
-	bool gameOver = false;
-	int score = 0;
+	if (!font.loadFromFile("Fonts/SegoeUI.ttf"))
+	{
+		cout << "Unable to load font file";
+	}
 
 	//Frame Processing
 	while (window.isOpen())
@@ -145,12 +156,14 @@ int main(){
 			if (event.type == sf::Event::Closed)
 				window.close();
 			if (event.type == sf::Event::Resized)
-				resizeView(window, view);
+				if(scaleToggle)
+					resizeView(window, view);
 		}
 		// reset the frame
 		view.setCenter(sf::Vector2f(c1.getPosition().x, c1.getPosition().y));
 		window.clear(sf::Color::Black);
 		window.setView(view);
+		processScaleToggle(scaleToggle);
 
 		// Code to draw contents in the frame
 		if (!gameOver) {
@@ -194,4 +207,13 @@ bool processCharacterPlatformCollision(Character c, Platform p) {
 void resizeView(const sf::RenderWindow& window, sf::View& view) {
 	float aspectRatio = float(window.getSize().x) / float(window.getSize().y);
 	view.setSize(800 * aspectRatio * (6.0 / 8.0), 600);
+}
+
+void processScaleToggle(bool& scaleToggle) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::O)) {
+		scaleToggle = true;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::P)) {
+		scaleToggle = false;
+	}
 }
