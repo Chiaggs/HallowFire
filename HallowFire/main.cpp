@@ -125,6 +125,7 @@ int main(){
 	sf::Texture platformTexture;
 	sf::View view(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(800, 600));
 	sf::Font font;
+	sf::Text text;
 
 	//Defing Entities
 	Platform p1, p2, p3;
@@ -147,6 +148,11 @@ int main(){
 	{
 		cout << "Unable to load font file";
 	}
+	else {
+		text.setFont(font);
+	}
+	text.setCharacterSize(24);
+	text.setFillColor(sf::Color::White);
 
 	//Frame Processing
 	while (window.isOpen())
@@ -174,14 +180,19 @@ int main(){
 		window.draw(p3);
 		window.draw(c1);
 		window.draw(mp1);
+		text.setPosition(sf::Vector2f(c1.getPosition().x - 400, c1.getPosition().y - 300));
+		string HUDtext = "Score: " + std::to_string(score);
+		if (gameOver) {
+			HUDtext += " Game Over!";
+		}
+		text.setString(HUDtext);
+		window.draw(text);
 		mp1.processMovement();
 		c1.processKeyboardInput();
 		c1.processGravity();
 		bool collision = processCharacterMovingPlatformCollision(c1, mp1);
-		if (collision) {
-			cout << "Collision Occured!";
+		if (collision)
 			gameOver = true;
-		}
 
 		// end of the current frame
 		window.display();
