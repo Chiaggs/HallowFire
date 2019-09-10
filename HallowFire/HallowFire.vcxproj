@@ -130,8 +130,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Platform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Character.h" />
+    <ClInclude Include="MovingPlatform.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

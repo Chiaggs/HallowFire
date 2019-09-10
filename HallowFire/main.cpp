@@ -1,114 +1,12 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include "Platform.h"
+#include "Character.h"
+#include "MovingPlatform.h"
 
 using namespace std;
 
-class Platform : public sf::RectangleShape {
-public:
-	// Variables
-	static int objectCount;
-	int length;
-	int breadth;
-
-	// Constrcutor
-	Platform() {
-		objectCount++;
-		length = 200;
-		breadth = 40;
-		this->setSize(sf::Vector2f(length, breadth));
-		this->setFillColor(sf::Color::White);
-		setInitialPosition();
-	}
-
-	// Helper Functions
-	void setInitialPosition() {
-		this->setPosition(calculateHorizontalPosition(), 560.f);
-	}
-	int calculateHorizontalPosition() {
-		int buffer = 50;
-		int pos = buffer;
-		for (int i = 1; i < objectCount; i++) {
-			pos += length + buffer;
-		}
-		return pos;
-	}
-
-	// public interface functions
-	int getObjectCount() {
-		return objectCount;
-	}
-};
 int Platform::objectCount = 0;
-
-class Character : public sf::CircleShape {
-public:
-	// Variables
-	int radius;
-	int leftpos, toppos;
-
-	// Constructor
-	Character() {
-		radius = 25;
-		this->setRadius(radius);
-		this->setFillColor(sf::Color::Cyan);
-		this->leftpos = 75;
-		this->toppos = 510;
-		this->setPosition(leftpos, toppos);
-	}
-
-	//Public interface functions
-	void processKeyboardInput() {
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-			// Code to make the character jump
-			this->move(0, -5);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-			this->move(-3, 0);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-			this->move(3, 0);
-		}
-	}
-
-	void processGravity() {
-		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-			if(this->getPosition().y <= this->toppos-5)
-				this->move(0, 5);
-		}
-	}
-};
-
-class MovingPlatform : public sf::RectangleShape {
-public:
-
-	// Variables
-	int length;
-	int breadth;
-	bool towardsLeft;
-
-	// Constrcutor
-	MovingPlatform() {
-		length = 80;
-		breadth = 10;
-		towardsLeft = true;
-		this->setSize(sf::Vector2f(length, breadth));
-		this->setFillColor(sf::Color::Red);
-		this->setPosition(700.f, 545.f);
-	}
-
-	// Public interface functions
-	void processMovement() {
-		int leftpos = this->getPosition().x;
-		if (leftpos <= 0)
-			towardsLeft = false;
-		if (leftpos >= 720)
-			towardsLeft = true;
-		if(towardsLeft)
-			this->move(-5.f, 0.f);
-		else
-			this->move(5.f, 0.f);
-	}
-};
 
 bool processCharacterMovingPlatformCollision(Character, MovingPlatform);
 void resizeView(const sf::RenderWindow&, sf::View&);
@@ -200,6 +98,7 @@ int main(){
 	return 0;
 }
 
+// functions to detect collision
 bool processCharacterMovingPlatformCollision(Character c, MovingPlatform mp) {
 	bool collision = false;
 	sf::FloatRect characterBoundingBox = c.getGlobalBounds();
@@ -215,6 +114,7 @@ bool processCharacterPlatformCollision(Character c, Platform p) {
 	return collision;
 }
 
+// functions to perform scaling
 void resizeView(const sf::RenderWindow& window, sf::View& view) {
 	float aspectRatio = float(window.getSize().x) / float(window.getSize().y);
 	view.setSize(800 * aspectRatio * (6.0 / 8.0), 600);
