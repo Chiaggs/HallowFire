@@ -5,12 +5,12 @@
 #include "MovingPlatform.h"
 
 using namespace std;
-
 int Platform::objectCount = 0;
-
 bool processCharacterMovingPlatformCollision(Character, MovingPlatform);
 void resizeView(const sf::RenderWindow&, sf::View&);
 void processScaleToggle(bool&);
+void updateScore(int& score, bool& gameOver);
+void updateScoreHUD(sf::Text&, int&, bool&);
 
 int main(){
 
@@ -55,6 +55,7 @@ int main(){
 	//Frame Processing
 	while (window.isOpen())
 	{
+		// Handling events
 		sf::Event event;
 		while (window.pollEvent(event)){
 			if (event.type == sf::Event::Closed)
@@ -63,6 +64,7 @@ int main(){
 				if(scaleToggle)
 					resizeView(window, view);
 		}
+
 		// reset the frame
 		view.setCenter(sf::Vector2f(c1.getPosition().x, c1.getPosition().y));
 		window.clear(sf::Color::Black);
@@ -70,20 +72,14 @@ int main(){
 		processScaleToggle(scaleToggle);
 
 		// Code to draw contents in the frame
-		if (!gameOver) {
-			score++;
-		}
+		updateScore(score, gameOver);
 		window.draw(p1);
 		window.draw(p2);
 		window.draw(p3);
 		window.draw(c1);
 		window.draw(mp1);
 		text.setPosition(sf::Vector2f(c1.getPosition().x - 400, c1.getPosition().y - 300));
-		string HUDtext = "Score: " + std::to_string(score);
-		if (gameOver) {
-			HUDtext += " Game Over!";
-		}
-		text.setString(HUDtext);
+		updateScoreHUD(text, score, gameOver);
 		window.draw(text);
 		mp1.processMovement();
 		c1.processKeyboardInput();
@@ -127,4 +123,20 @@ void processScaleToggle(bool& scaleToggle) {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::P)) {
 		scaleToggle = false;
 	}
+}
+
+// functions to implement game logic
+void updateScore(int& score, bool& gameOver) {
+	if (!gameOver) {
+		score++;
+	}
+}
+
+// functions related to HUD display
+void updateScoreHUD(sf::Text& text, int& score, bool& gameOver) {
+	string HUDtext = "Score: " + std::to_string(score);
+	if (gameOver) {
+		HUDtext += " Game Over!";
+	}
+	text.setString(HUDtext);
 }
