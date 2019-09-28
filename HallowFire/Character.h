@@ -16,23 +16,27 @@ public:
 	}
 
 	//Public interface functions
-	void processKeyboardInput() {
+	void processKeyboardInput(float time) {
+		float speed = 400;
+		float distance = speed * time;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 			// Code to make the character jump
-			this->move(0, -5);
+			this->move(0, -(1.3*distance));
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-			this->move(-3, 0);
+			this->move(-distance, 0);
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-			this->move(3, 0);
+			this->move(distance, 0);
 		}
 	}
 
-	void processGravity() {
+	void processGravity(float time) {
+		float speed = 400;
+		float distance = speed * time;
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 			if (this->getPosition().y <= this->toppos - 5)
-				this->move(0, 5);
+				this->move(0, distance);
 		}
 	}
 };

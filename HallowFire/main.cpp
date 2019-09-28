@@ -12,23 +12,55 @@ void processScaleToggle(bool&);
 void updateScore(int& score, bool& gameOver);
 void updateScoreHUD(sf::Text&, int&, bool&);
 
-int main(){
+// class to maintain global and game time
+// Implemented composition in the class by instantiating an object of clock
+class timeLine {
+public:
+	sf::Clock clock;
+	sf::Time gameTime;
+	int ticSize;
+	sf::Time timeTic;
+	timeLine() {
+		ticSize = 1;
+		gameTime = clock.getElapsedTime();
+		timeTic = sf::seconds(ticSize);
+	}
+	void printGameTime() {
+		cout << clock.getElapsedTime().asSeconds() << " \n";
+	}
+	void updateGameTime() {
+		if (clock.getElapsedTime().asSeconds() >= ticSize) {
+			clock.restart();
+			gameTime = gameTime + timeTic;
+		}
+	}
+	sf::Time getElapsedTime() {
+		return clock.getElapsedTime();
+	}
+	sf::Time restart() {
+		return clock.restart();
+	}
+};
+
+int main() {
 
 	// Set initial configuration
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8; // setting the anti-aliasing level, to remove jagged lines
 	sf::RenderWindow window;
 	window.create(sf::VideoMode(800, 600), "HallowFire", sf::Style::Close | sf::Style::Resize, settings); // Optional thrid arg can be used to specify Window style
-	window.setVerticalSyncEnabled(true); // Setting VSync to true, to prevent screen tearing
+	//window.setVerticalSyncEnabled(true); // Setting VSync to true, to prevent screen tearing
 	sf::Texture platformTexture;
 	sf::View view(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(800, 600));
 	sf::Font font;
 	sf::Text text;
+	float elapsedTime = 0;
 
 	//Defing Entities
 	Platform p1, p2, p3;
 	Character c1;
 	MovingPlatform mp1;
+	timeLine t1;
 	bool gameOver = false;
 	bool scaleToggle = false;
 	int score = 0;
@@ -57,11 +89,11 @@ int main(){
 	{
 		// Handling events
 		sf::Event event;
-		while (window.pollEvent(event)){
+		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed)
 				window.close();
 			if (event.type == sf::Event::Resized)
-				if(scaleToggle)
+				if (scaleToggle)
 					resizeView(window, view);
 		}
 
@@ -81,9 +113,12 @@ int main(){
 		text.setPosition(sf::Vector2f(c1.getPosition().x - 400, c1.getPosition().y - 300));
 		updateScoreHUD(text, score, gameOver);
 		window.draw(text);
-		mp1.processMovement();
-		c1.processKeyboardInput();
-		c1.processGravity();
+		mp1.processMovement(elapsedTime);
+		c1.processKeyboardInput(elapsedTime);
+		c1.processGravity(elapsedTime);
+		elapsedTime = t1.restart().asSeconds();
+
+
 		bool collision = processCharacterMovingPlatformCollision(c1, mp1);
 		if (collision)
 			gameOver = true;
