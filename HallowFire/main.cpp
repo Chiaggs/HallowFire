@@ -9,8 +9,9 @@ int Platform::objectCount = 0;
 bool processCharacterMovingPlatformCollision(Character, MovingPlatform);
 void resizeView(const sf::RenderWindow&, sf::View&);
 void processScaleToggle(bool&);
-void updateScore(int& score, bool& gameOver);
-void updateScoreHUD(sf::Text&, int&, bool&);
+void updateScore(float& score, bool& gameOver, float);
+void updateScoreHUD(sf::Text&, float&, bool&);
+void pause_unpause(int&, bool&);
 
 // class to maintain global and game time
 // Implemented composition in the class by instantiating an object of clock
@@ -18,7 +19,8 @@ class timeLine {
 public:
 	sf::Clock clock;
 	sf::Time gameTime;
-	int ticSize;
+	sf::Time GlobalTime;
+	float ticSize;
 	sf::Time timeTic;
 	timeLine() {
 		ticSize = 1;
@@ -34,13 +36,15 @@ public:
 			gameTime = gameTime + timeTic;
 		}
 	}
-	sf::Time getElapsedTime() {
-		return clock.getElapsedTime();
+	float getElapsedTime() {
+		return clock.getElapsedTime().asSeconds()*ticSize;
 	}
-	sf::Time restart() {
-		return clock.restart();
+	float restart() {
+		return clock.restart().asSeconds()*ticSize;
 	}
 };
+
+void adjustTicSize(timeLine&);
 
 int main() {
 
@@ -63,7 +67,9 @@ int main() {
 	timeLine t1;
 	bool gameOver = false;
 	bool scaleToggle = false;
-	int score = 0;
+	float score = 0;
+	int pauseTicker = 0;
+	bool isPaused = false;
 
 	// Initializing entities
 	if (platformTexture.loadFromFile("Textures/wooden-texture.jpg")) {
@@ -104,7 +110,7 @@ int main() {
 		processScaleToggle(scaleToggle);
 
 		// Code to draw contents in the frame
-		updateScore(score, gameOver);
+		updateScore(score, gameOver, elapsedTime);
 		window.draw(p1);
 		window.draw(p2);
 		window.draw(p3);
@@ -116,9 +122,22 @@ int main() {
 		mp1.processMovement(elapsedTime);
 		c1.processKeyboardInput(elapsedTime);
 		c1.processGravity(elapsedTime);
-		elapsedTime = t1.restart().asSeconds();
 
+		// GameTime management
+		adjustTicSize(t1);
+		if (pauseTicker == 0) {
+			pause_unpause(pauseTicker, isPaused);
+		}
+		if (pauseTicker > 0)
+			pauseTicker--;
+		if (isPaused) {
+			elapsedTime = 0;
+			t1.restart();
+		}
+		else
+			elapsedTime = t1.restart();
 
+		// collision processing
 		bool collision = processCharacterMovingPlatformCollision(c1, mp1);
 		if (collision)
 			gameOver = true;
@@ -161,17 +180,38 @@ void processScaleToggle(bool& scaleToggle) {
 }
 
 // functions to implement game logic
-void updateScore(int& score, bool& gameOver) {
+void updateScore(float& score, bool& gameOver, float time) {
 	if (!gameOver) {
-		score++;
+		score += time*100; 
 	}
 }
 
 // functions related to HUD display
-void updateScoreHUD(sf::Text& text, int& score, bool& gameOver) {
-	string HUDtext = "Score: " + std::to_string(score);
+void updateScoreHUD(sf::Text& text, float& score, bool& gameOver) {
+	string HUDtext = "Score: " + std::to_string((int)score);
 	if (gameOver) {
 		HUDtext += " Game Over!";
 	}
 	text.setString(HUDtext);
+}
+
+// functions related to manage game speed
+void pause_unpause(int& pauseTicker, bool& isPaused) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
+		pauseTicker = 100;
+		isPaused = !isPaused;
+		cout << "Paused / unpaused";
+	}
+}
+
+void adjustTicSize(timeLine& t1) {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::K)) {
+		t1.ticSize = 1;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::J)) {
+		t1.ticSize = 0.5;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::L)) {
+		t1.ticSize = 2;
+	}
 }
