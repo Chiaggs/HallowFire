@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HallowFire_Multiplayer1", "HallowFire_Multiplayer1\HallowFire_Multiplayer1.vcxproj", "{75BD64B4-CDD3-4032-845C-512D9F2CEB8A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HallowFire_Multiplayer2", "HallowFire_Multiplayer2\HallowFire_Multiplayer2.vcxproj", "{C3D8B9EE-D20B-4AB9-A1BE-67202D991256}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -43,6 +45,14 @@ Global
 		{75BD64B4-CDD3-4032-845C-512D9F2CEB8A}.Release|x64.Build.0 = Release|x64
 		{75BD64B4-CDD3-4032-845C-512D9F2CEB8A}.Release|x86.ActiveCfg = Release|Win32
 		{75BD64B4-CDD3-4032-845C-512D9F2CEB8A}.Release|x86.Build.0 = Release|Win32
+		{C3D8B9EE-D20B-4AB9-A1BE-67202D991256}.Debug|x64.ActiveCfg = Debug|x64
+		{C3D8B9EE-D20B-4AB9-A1BE-67202D991256}.Debug|x64.Build.0 = Debug|x64
+		{C3D8B9EE-D20B-4AB9-A1BE-67202D991256}.Debug|x86.ActiveCfg = Debug|Win32
+		{C3D8B9EE-D20B-4AB9-A1BE-67202D991256}.Debug|x86.Build.0 = Debug|Win32
+		{C3D8B9EE-D20B-4AB9-A1BE-67202D991256}.Release|x64.ActiveCfg = Release|x64
+		{C3D8B9EE-D20B-4AB9-A1BE-67202D991256}.Release|x64.Build.0 = Release|x64
+		{C3D8B9EE-D20B-4AB9-A1BE-67202D991256}.Release|x86.ActiveCfg = Release|Win32
+		{C3D8B9EE-D20B-4AB9-A1BE-67202D991256}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
