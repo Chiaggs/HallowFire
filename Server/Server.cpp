@@ -14,15 +14,49 @@
 
 using namespace std;
 
+class MovingPlatform : public sf::RectangleShape {
+public:
+	// Variables
+	int length;
+	int breadth;
+	bool towardsLeft;
+
+	// Constrcutor
+	MovingPlatform() {
+		length = 80;
+		breadth = 10;
+		towardsLeft = true;
+		this->setSize(sf::Vector2f(length, breadth));
+		this->setFillColor(sf::Color::Red);
+		this->setPosition(700.f, 545.f);
+	}
+
+	// Public interface functions
+	void processMovement(float time) {
+		float speed = 500;
+		float distance = speed * time;
+		//cout << "Distance: " << distance;
+		int leftpos = this->getPosition().x;
+		if (leftpos <= 0)
+			towardsLeft = false;
+		if (leftpos >= 720)
+			towardsLeft = true;
+		if (towardsLeft)
+			this->move(-(distance), 0.f);
+		else
+			this->move(distance, 0.f);
+	}
+};
+
 class clientStats {
 public:
 	string clientID;
-	int clientIterations;
-	int char_x_pos;
-	int char_y_pos;
-	clientStats(string clientID, int clientIterations) {
+	float client_leftpos;
+	float client_toppos;
+	clientStats(string clientID, float client_leftpos, float client_toppos) {
 		this->clientID = clientID;
-		this->clientIterations = clientIterations;
+		this->client_leftpos = client_leftpos;
+		this->client_toppos = client_toppos;
 	}
 };
 class timeLine {
@@ -67,6 +101,7 @@ int main() {
 	// game logic 
 	float elapsedTime = 0;
 	timeLine t1;
+	MovingPlatform m1;
 
 	// Client moving platform processing
 	
@@ -82,7 +117,8 @@ int main() {
 			std::string token;
 			int iteration = 0;
 			string ClientID;
-			int clientIteration = 0;
+			float client_leftpos = 0;
+			float client_toppos = 0;
 			while ((pos = clientData.find(delimiter)) != std::string::npos) {
 				token = clientData.substr(0, pos);
 				if (iteration == 0) {
@@ -90,7 +126,11 @@ int main() {
 				}
 				if (iteration == 1) {
 					stringstream converter(token);
-					converter >> clientIteration;
+					converter >> client_leftpos;
+				}
+				if (iteration == 2) {
+					stringstream converter(token);
+					converter >> client_toppos;
 				}
 				clientData.erase(0, pos + delimiter.length());
 				iteration++;
@@ -102,34 +142,37 @@ int main() {
 				if (it->clientID == ClientID) {
 					matchFound = true;
 					//cout << " Match found" << endl;
-					it->clientIterations = clientIteration;
+					it->client_leftpos = client_leftpos;
+					it->client_toppos = client_toppos;
 				}
 			}
 			if (!matchFound) {
 				//cout << " No match found, adding to list" << endl;
-				clientMapping.push_back(clientStats(ClientID, clientIteration));
+				clientMapping.push_back(clientStats(ClientID, client_leftpos, client_toppos));
 			}
 
 			iteration = 0;
 			string replyString = "";
+			replyString += "mp_x: " + to_string(m1.getPosition().x) + " ";
+			replyString += "mp_y: " + to_string(m1.getPosition().y) + " ";
 			for (it = clientMapping.begin(); it != clientMapping.end(); ++it) {
 				iteration++;
-				cout << "Client: " << iteration << " Itertion: " << it->clientIterations << endl;
-				replyString += "Client: " + to_string(iteration);
-				replyString += " Iteration: " + to_string(it->clientIterations);
+				cout << "Client: " << iteration << " x pos: " << it->client_leftpos << " y pos: "<< it->client_toppos<< endl;
+				//replyString += "Client: " + to_string(iteration);
+				replyString += "x_pos: " + to_string(it->client_leftpos) + " ";
+				replyString += "y_pos: " + to_string(it->client_toppos) + " ";
 				replyString += "\n";
 			}
-			//  Do some 'work'
-			sleep(100);
-
+			
 			//  Send reply back to client
 			zmq::message_t reply(replyString.size());
-			memcpy(reply.data(), replyString.data(), replyString.size());
+			std::memcpy(reply.data(), replyString.data(), replyString.size());
 			socket.send(reply, zmq::send_flags::none);
 		}
 
 		// Game Logic
 		// timeline proceeds even when clients dont responds, server works asynchronously
+		m1.processMovement(elapsedTime);
 		elapsedTime = t1.restart();
 	}
 	return 0;

@@ -83,6 +83,9 @@ int main() {
 	bool isPaused = false;
 	bool takeInput = true;
 
+	// entities for socket programming
+	string delimiter = " ";
+
 	// Initializing entities
 	if (platformTexture.loadFromFile("Textures/wooden-texture.jpg")) {
 		p1.setTexture(&platformTexture);
@@ -143,7 +146,7 @@ int main() {
 		text.setPosition(sf::Vector2f(c1.getPosition().x - 400, c1.getPosition().y - 300));
 		updateScoreHUD(text, score, gameOver);
 		window.draw(text);
-		mp1.processMovement(elapsedTime);
+		//mp1.processMovement(elapsedTime);
 		if(takeInput)
 			c1.processKeyboardInput(elapsedTime);
 		c1.processGravity(elapsedTime);
@@ -167,20 +170,44 @@ int main() {
 		if (collision)
 			gameOver = true;
 
-		//// Socket Programming
-		//string msg = to_string(ClientID) + " " + to_string(i) + " ";
-		//zmq::message_t request(msg.size());
-		//memcpy(request.data(), msg.data(), msg.size());
-		//socket.send(request, zmq::send_flags::none);
+		// Socket Programming
+		//cout << "Character Positions are: " << c1.getPosition().x << " " << c1.getPosition().y << endl;
+		string msg = to_string(ClientID) + " " + to_string(c1.getPosition().x) + " " + to_string(c1.getPosition().y) + " ";
+		zmq::message_t request(msg.size());
+		memcpy(request.data(), msg.data(), msg.size());
+		socket.send(request, zmq::send_flags::none);
 
-		////  Get the reply.
-		//zmq::message_t reply;
-		//socket.recv(reply, zmq::recv_flags::none);
-		//string recieved_data = string(static_cast<char*>(reply.data()), reply.size());
-		//cout << recieved_data;
-
-
-
+		//  Get the reply.
+		zmq::message_t reply;
+		socket.recv(reply, zmq::recv_flags::none);
+		string recieved_data = string(static_cast<char*>(reply.data()), reply.size());
+		size_t pos = 0;
+		int iteration = 0;
+		float mp_x = 0;
+		float mp_y = 0;
+		std::string token;
+		while ((pos = recieved_data.find(delimiter)) != std::string::npos) {
+			token = recieved_data.substr(0, pos);
+			if (iteration == 1) {
+				stringstream converter(token);
+				converter >> mp_x;
+			}
+			if (iteration == 3) {
+				stringstream converter(token);
+				converter >> mp_y;
+			}
+			/*if (iteration == 1) {
+				stringstream converter(token);
+				converter >> client_leftpos;
+			}
+			if (iteration == 2) {
+				stringstream converter(token);
+				converter >> client_toppos;
+			}*/
+			recieved_data.erase(0, pos + delimiter.length());
+			iteration++;
+		}
+		mp1.setPosition(sf::Vector2f(mp_x, mp_y));
 		// end of the current frame
 		window.display();
 	}
