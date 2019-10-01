@@ -157,8 +157,10 @@ int main() {
 			replyString += "mp_y: " + to_string(m1.getPosition().y) + " ";
 			for (it = clientMapping.begin(); it != clientMapping.end(); ++it) {
 				iteration++;
-				cout << "Client: " << iteration << " x pos: " << it->client_leftpos << " y pos: "<< it->client_toppos<< endl;
+				//cout << "Client: " << iteration << " x pos: " << it->client_leftpos << " y pos: "<< it->client_toppos<< endl;
 				//replyString += "Client: " + to_string(iteration);
+				if (it->clientID.compare(ClientID) == 0)
+					continue;
 				replyString += "x_pos: " + to_string(it->client_leftpos) + " ";
 				replyString += "y_pos: " + to_string(it->client_toppos) + " ";
 				replyString += "\n";

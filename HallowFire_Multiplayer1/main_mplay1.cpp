@@ -73,7 +73,7 @@ int main() {
 
 	//Defing Entities
 	Platform p1, p2, p3;
-	Character c1;
+	Character c1, c2, c3;
 	MovingPlatform mp1;
 	timeLine t1;
 	bool gameOver = false;
@@ -152,9 +152,11 @@ int main() {
 		c1.processGravity(elapsedTime);
 
 		// GameTime management
-		adjustTicSize(t1);
+		if(takeInput)
+			adjustTicSize(t1);
 		if (pauseTicker == 0) {
-			pause_unpause(pauseTicker, isPaused);
+			if(takeInput)
+				pause_unpause(pauseTicker, isPaused);
 		}
 		if (pauseTicker > 0)
 			pauseTicker--;
@@ -185,7 +187,12 @@ int main() {
 		int iteration = 0;
 		float mp_x = 0;
 		float mp_y = 0;
+		float other_player_x = 0;
+		float other_player_y = 0;
+		float other_player2_x = 0;
+		float other_player2_y = 0;
 		std::string token;
+		//cout << recieved_data << endl;
 		while ((pos = recieved_data.find(delimiter)) != std::string::npos) {
 			token = recieved_data.substr(0, pos);
 			if (iteration == 1) {
@@ -195,6 +202,26 @@ int main() {
 			if (iteration == 3) {
 				stringstream converter(token);
 				converter >> mp_y;
+			}
+			if (iteration == 5) {
+				
+				stringstream converter(token);
+				converter >> other_player_x;
+			}
+			if (iteration == 7) {
+
+				stringstream converter(token);
+				converter >> other_player_y;
+			}
+			if (iteration == 9) {
+
+				stringstream converter(token);
+				converter >> other_player2_x;
+			}
+			if (iteration == 11) {
+
+				stringstream converter(token);
+				converter >> other_player2_y;
 			}
 			/*if (iteration == 1) {
 				stringstream converter(token);
@@ -207,7 +234,23 @@ int main() {
 			recieved_data.erase(0, pos + delimiter.length());
 			iteration++;
 		}
-		mp1.setPosition(sf::Vector2f(mp_x, mp_y));
+		bool other_player = false;
+		bool other_player2 = false;
+		if (other_player_x != 0 && other_player_y != 0) {
+			other_player = true;
+			window.draw(c2);
+		}
+		if (other_player2_x != 0 && other_player2_y != 0) {
+			other_player2 = true;
+			window.draw(c3);
+		}
+		if (!isPaused) {
+			mp1.setPosition(sf::Vector2f(mp_x, mp_y));
+			if(other_player)
+				c2.setPosition(sf::Vector2f(other_player_x, other_player_y));
+			if(other_player2)
+				c3.setPosition(sf::Vector2f(other_player2_x, other_player2_y));
+		}
 		// end of the current frame
 		window.display();
 	}
