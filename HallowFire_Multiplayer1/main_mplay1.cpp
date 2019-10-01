@@ -3,6 +3,17 @@
 #include "Platform1.h"
 #include "Character1.h"
 #include "MovingPlatform1.h"
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string>
+#include <zmq.hpp>
+#ifndef _WIN32
+#include <unistd.h>
+#else
+#include <windows.h>
+#define sleep(n)    Sleep(n)
+#endif
 
 using namespace std;
 int Platform::objectCount = 0;
@@ -70,6 +81,7 @@ int main() {
 	float score = 0;
 	int pauseTicker = 0;
 	bool isPaused = false;
+	bool takeInput = true;
 
 	// Initializing entities
 	if (platformTexture.loadFromFile("Textures/wooden-texture.jpg")) {
@@ -90,6 +102,14 @@ int main() {
 	text.setCharacterSize(24);
 	text.setFillColor(sf::Color::White);
 
+	// Socket Programming
+	//  Prepare our context and socket
+	zmq::context_t context(1);
+	zmq::socket_t socket(context, ZMQ_REQ);
+	srand(time(0));
+	int ClientID = rand();
+	socket.connect("tcp://localhost:5555");
+
 	//Frame Processing
 	while (window.isOpen())
 	{
@@ -101,6 +121,10 @@ int main() {
 			if (event.type == sf::Event::Resized)
 				if (scaleToggle)
 					resizeView(window, view);
+			if (event.type == sf::Event::GainedFocus)
+				takeInput = true;
+			if (event.type == sf::Event::LostFocus)
+				takeInput = false;
 		}
 
 		// reset the frame
@@ -120,7 +144,8 @@ int main() {
 		updateScoreHUD(text, score, gameOver);
 		window.draw(text);
 		mp1.processMovement(elapsedTime);
-		c1.processKeyboardInput(elapsedTime);
+		if(takeInput)
+			c1.processKeyboardInput(elapsedTime);
 		c1.processGravity(elapsedTime);
 
 		// GameTime management
@@ -141,6 +166,20 @@ int main() {
 		bool collision = processCharacterMovingPlatformCollision(c1, mp1);
 		if (collision)
 			gameOver = true;
+
+		//// Socket Programming
+		//string msg = to_string(ClientID) + " " + to_string(i) + " ";
+		//zmq::message_t request(msg.size());
+		//memcpy(request.data(), msg.data(), msg.size());
+		//socket.send(request, zmq::send_flags::none);
+
+		////  Get the reply.
+		//zmq::message_t reply;
+		//socket.recv(reply, zmq::recv_flags::none);
+		//string recieved_data = string(static_cast<char*>(reply.data()), reply.size());
+		//cout << recieved_data;
+
+
 
 		// end of the current frame
 		window.display();

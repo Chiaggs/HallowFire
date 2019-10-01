@@ -1,3 +1,4 @@
+#include <SFML/Graphics.hpp>
 #include <zmq.hpp>
 #include <string>
 #include <iostream>
@@ -17,11 +18,42 @@ class clientStats {
 public:
 	string clientID;
 	int clientIterations;
+	int char_x_pos;
+	int char_y_pos;
 	clientStats(string clientID, int clientIterations) {
 		this->clientID = clientID;
 		this->clientIterations = clientIterations;
 	}
 };
+class timeLine {
+public:
+	sf::Clock clock;
+	sf::Time gameTime;
+	sf::Time GlobalTime;
+	float ticSize;
+	sf::Time timeTic;
+	timeLine() {
+		ticSize = 1;
+		gameTime = clock.getElapsedTime();
+		timeTic = sf::seconds(ticSize);
+	}
+	void printGameTime() {
+		cout << clock.getElapsedTime().asSeconds() << " \n";
+	}
+	void updateGameTime() {
+		if (clock.getElapsedTime().asSeconds() >= ticSize) {
+			clock.restart();
+			gameTime = gameTime + timeTic;
+		}
+	}
+	float getElapsedTime() {
+		return clock.getElapsedTime().asSeconds() * ticSize;
+	}
+	float restart() {
+		return clock.restart().asSeconds() * ticSize;
+	}
+};
+
 
 int main() {
 	//  Prepare our context and socket
@@ -31,10 +63,18 @@ int main() {
 	int uniqueClients = 0;
 	list<clientStats> clientMapping;
 	string delimiter = " ";
+
+	// game logic 
+	float elapsedTime = 0;
+	timeLine t1;
+
+	// Client moving platform processing
+	
+
 	while (true) {
 		zmq::message_t request;
 
-		//  Wait for next request from client
+		//  Dont wait for client requests, do thing a synchonously
 		socket.recv(request, zmq::recv_flags::dontwait);
 		if (!request.empty()) {
 			string clientData = string(static_cast<char*>(request.data()), request.size());
@@ -87,6 +127,10 @@ int main() {
 			memcpy(reply.data(), replyString.data(), replyString.size());
 			socket.send(reply, zmq::send_flags::none);
 		}
+
+		// Game Logic
+		// timeline proceeds even when clients dont responds, server works asynchronously
+		elapsedTime = t1.restart();
 	}
 	return 0;
 }
