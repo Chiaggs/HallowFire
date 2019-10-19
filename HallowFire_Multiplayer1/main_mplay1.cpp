@@ -55,6 +55,19 @@ public:
 	}
 };
 
+static int GID = 1;
+class GameObject {
+public:
+	int ID = 0;
+	GameObject() {
+		ID = GID;
+		GID++;
+	}
+	int getObjectID() {
+		return ID;
+	}	
+};
+
 void adjustTicSize(timeLine&);
 
 int main() {
