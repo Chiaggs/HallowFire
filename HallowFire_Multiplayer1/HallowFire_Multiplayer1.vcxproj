@@ -133,8 +133,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character1.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="MovingPlatform1.h" />
     <ClInclude Include="platform1.h" />
+    <ClInclude Include="Renderable.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\HallowFire\Textures\wooden-texture.jpg" />

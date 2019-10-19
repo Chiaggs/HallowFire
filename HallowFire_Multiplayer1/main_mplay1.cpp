@@ -55,19 +55,6 @@ public:
 	}
 };
 
-static int GID = 1;
-class GameObject {
-public:
-	int ID = 0;
-	GameObject() {
-		ID = GID;
-		GID++;
-	}
-	int getObjectID() {
-		return ID;
-	}	
-};
-
 void adjustTicSize(timeLine&);
 
 int main() {
@@ -155,7 +142,7 @@ int main() {
 		window.draw(p2);
 		window.draw(p3);
 		window.draw(c1);
-		window.draw(mp1);
+		window.draw(mp1.rectangle);
 		text.setPosition(sf::Vector2f(c1.getPosition().x - 400, c1.getPosition().y - 300));
 		updateScoreHUD(text, score, gameOver);
 		window.draw(text);
@@ -258,7 +245,7 @@ int main() {
 			window.draw(c3);
 		}
 		if (!isPaused) {
-			mp1.setPosition(sf::Vector2f(mp_x, mp_y));
+			mp1.rectangle.setPosition(sf::Vector2f(mp_x, mp_y));
 			if(other_player)
 				c2.setPosition(sf::Vector2f(other_player_x, other_player_y));
 			if(other_player2)
@@ -274,7 +261,7 @@ int main() {
 bool processCharacterMovingPlatformCollision(Character c, MovingPlatform mp) {
 	bool collision = false;
 	sf::FloatRect characterBoundingBox = c.getGlobalBounds();
-	sf::FloatRect movingPlatformBoundingBox = mp.getGlobalBounds();
+	sf::FloatRect movingPlatformBoundingBox = mp.rectangle.getGlobalBounds();
 	if (characterBoundingBox.intersects(movingPlatformBoundingBox)) {
 		return true;
 	}

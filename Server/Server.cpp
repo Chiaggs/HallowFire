@@ -166,6 +166,7 @@ int main() {
 				replyString += "\n";
 			}
 			
+			
 			//  Send reply back to client
 			zmq::message_t reply(replyString.size());
 			std::memcpy(reply.data(), replyString.data(), replyString.size());

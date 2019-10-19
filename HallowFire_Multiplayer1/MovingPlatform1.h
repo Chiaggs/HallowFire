@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include "Renderable.h"
 
-class MovingPlatform : public sf::RectangleShape {
+class MovingPlatform : public Renderable {
 public:
 	// Variables
 	int length;
@@ -12,9 +13,9 @@ public:
 		length = 80;
 		breadth = 10;
 		towardsLeft = true;
-		this->setSize(sf::Vector2f(length, breadth));
-		this->setFillColor(sf::Color::Red);
-		this->setPosition(700.f, 545.f);
+		this->rectangle.setSize(sf::Vector2f(length, breadth));
+		this->rectangle.setFillColor(sf::Color::Red);
+		this->rectangle.setPosition(700.f, 545.f);
 	}
 
 	// Public interface functions
@@ -22,14 +23,14 @@ public:
 		float speed = 500;
 		float distance = speed * time;
 		//cout << "Distance: " << distance;
-		int leftpos = this->getPosition().x;
+		int leftpos = this->rectangle.getPosition().x;
 		if (leftpos <= 0)
 			towardsLeft = false;
 		if (leftpos >= 720)
 			towardsLeft = true;
 		if (towardsLeft)
-			this->move(-(distance), 0.f);
+			this->rectangle.move(-(distance), 0.f);
 		else
-			this->move(distance, 0.f);
+			this->rectangle.move(distance, 0.f);
 	}
 };
