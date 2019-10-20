@@ -15,19 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="platform1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Character1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MovingPlatform1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderable.h">
+    <ClInclude Include="TimeLine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

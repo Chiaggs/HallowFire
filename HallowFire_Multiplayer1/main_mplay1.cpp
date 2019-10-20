@@ -1,9 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "Platform1.h"
-#include "Character1.h"
-#include "MovingPlatform1.h"
-#include <time.h>
+#include "GameObject.h"
+#include "TimeLine.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string>
@@ -23,37 +21,6 @@ void processScaleToggle(bool&);
 void updateScore(float& score, bool& gameOver, float);
 void updateScoreHUD(sf::Text&, float&, bool&);
 void pause_unpause(int&, bool&);
-
-// class to maintain global and game time
-// Implemented composition in the class by instantiating an object of clock
-class timeLine {
-public:
-	sf::Clock clock;
-	sf::Time gameTime;
-	sf::Time GlobalTime;
-	float ticSize;
-	sf::Time timeTic;
-	timeLine() {
-		ticSize = 1;
-		gameTime = clock.getElapsedTime();
-		timeTic = sf::seconds(ticSize);
-	}
-	void printGameTime() {
-		cout << clock.getElapsedTime().asSeconds() << " \n";
-	}
-	void updateGameTime() {
-		if (clock.getElapsedTime().asSeconds() >= ticSize) {
-			clock.restart();
-			gameTime = gameTime + timeTic;
-		}
-	}
-	float getElapsedTime() {
-		return clock.getElapsedTime().asSeconds() * ticSize;
-	}
-	float restart() {
-		return clock.restart().asSeconds() * ticSize;
-	}
-};
 
 void adjustTicSize(timeLine&);
 
@@ -88,9 +55,9 @@ int main() {
 
 	// Initializing entities
 	if (platformTexture.loadFromFile("Textures/wooden-texture.jpg")) {
-		p1.setTexture(&platformTexture);
-		p2.setTexture(&platformTexture);
-		p3.setTexture(&platformTexture);
+		p1.rectangle.setTexture(&platformTexture);
+		p2.rectangle.setTexture(&platformTexture);
+		p3.rectangle.setTexture(&platformTexture);
 	}
 	else {
 		cout << "Failure Loading texture";
@@ -138,9 +105,9 @@ int main() {
 
 		// Code to draw contents in the frame
 		updateScore(score, gameOver, elapsedTime);
-		window.draw(p1);
-		window.draw(p2);
-		window.draw(p3);
+		window.draw(p1.getRectangleObject());
+		window.draw(p2.rectangle);
+		window.draw(p3.rectangle);
 		window.draw(c1);
 		window.draw(mp1.rectangle);
 		text.setPosition(sf::Vector2f(c1.getPosition().x - 400, c1.getPosition().y - 300));
