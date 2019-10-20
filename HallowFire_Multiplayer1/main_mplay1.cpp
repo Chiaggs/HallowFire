@@ -98,7 +98,7 @@ int main() {
 		}
 
 		// reset the frame
-		view.setCenter(sf::Vector2f(c1.getPosition().x, c1.getPosition().y));
+		view.setCenter(sf::Vector2f(c1.circle.getPosition().x, c1.circle.getPosition().y));
 		window.clear(sf::Color::Black);
 		window.setView(view);
 		processScaleToggle(scaleToggle);
@@ -108,9 +108,9 @@ int main() {
 		window.draw(p1.getRectangleObject());
 		window.draw(p2.rectangle);
 		window.draw(p3.rectangle);
-		window.draw(c1);
+		window.draw(c1.circle);
 		window.draw(mp1.rectangle);
-		text.setPosition(sf::Vector2f(c1.getPosition().x - 400, c1.getPosition().y - 300));
+		text.setPosition(sf::Vector2f(c1.circle.getPosition().x - 400, c1.circle.getPosition().y - 300));
 		updateScoreHUD(text, score, gameOver);
 		window.draw(text);
 		//mp1.processMovement(elapsedTime);
@@ -141,7 +141,7 @@ int main() {
 
 		// Socket Programming
 		//cout << "Character Positions are: " << c1.getPosition().x << " " << c1.getPosition().y << endl;
-		string msg = to_string(ClientID) + " " + to_string(c1.getPosition().x) + " " + to_string(c1.getPosition().y) + " ";
+		string msg = to_string(ClientID) + " " + to_string(c1.circle.getPosition().x) + " " + to_string(c1.circle.getPosition().y) + " ";
 		zmq::message_t request(msg.size());
 		memcpy(request.data(), msg.data(), msg.size());
 		socket.send(request, zmq::send_flags::none);
@@ -205,18 +205,18 @@ int main() {
 		bool other_player2 = false;
 		if (other_player_x != 0 && other_player_y != 0) {
 			other_player = true;
-			window.draw(c2);
+			window.draw(c2.circle);
 		}
 		if (other_player2_x != 0 && other_player2_y != 0) {
 			other_player2 = true;
-			window.draw(c3);
+			window.draw(c3.circle);
 		}
 		if (!isPaused) {
 			mp1.rectangle.setPosition(sf::Vector2f(mp_x, mp_y));
 			if(other_player)
-				c2.setPosition(sf::Vector2f(other_player_x, other_player_y));
+				c2.circle.setPosition(sf::Vector2f(other_player_x, other_player_y));
 			if(other_player2)
-				c3.setPosition(sf::Vector2f(other_player2_x, other_player2_y));
+				c3.circle.setPosition(sf::Vector2f(other_player2_x, other_player2_y));
 		}
 		// end of the current frame
 		window.display();
@@ -227,7 +227,7 @@ int main() {
 // functions to detect collision
 bool processCharacterMovingPlatformCollision(Character c, MovingPlatform mp) {
 	bool collision = false;
-	sf::FloatRect characterBoundingBox = c.getGlobalBounds();
+	sf::FloatRect characterBoundingBox = c.circle.getGlobalBounds();
 	sf::FloatRect movingPlatformBoundingBox = mp.rectangle.getGlobalBounds();
 	if (characterBoundingBox.intersects(movingPlatformBoundingBox)) {
 		return true;

@@ -100,20 +100,21 @@ public:
 	}
 };
 
-class Character : public sf::CircleShape {
+class Character : public Movable {
 public:
 	// Variables
 	int radius;
 	int leftpos, toppos;
+	sf::CircleShape circle;
 
 	// Constructor
 	Character() {
 		radius = 25;
-		this->setRadius(radius);
-		this->setFillColor(sf::Color::Cyan);
+		this->circle.setRadius(radius);
+		this->circle.setFillColor(sf::Color::Cyan);
 		this->leftpos = 75;
 		this->toppos = 510;
-		this->setPosition(leftpos, toppos);
+		this->circle.setPosition(leftpos, toppos);
 	}
 
 	//Public interface functions
@@ -122,13 +123,13 @@ public:
 		float distance = speed * time;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 			// Code to make the character jump
-			this->move(0, -(1.3 * distance));
+			this->circle.move(0, -(1.3 * distance));
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-			this->move(-distance, 0);
+			this->circle.move(-distance, 0);
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-			this->move(distance, 0);
+			this->circle.move(distance, 0);
 		}
 	}
 
@@ -136,8 +137,8 @@ public:
 		float speed = 400;
 		float distance = speed * time;
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-			if (this->getPosition().y <= this->toppos - 5)
-				this->move(0, distance);
+			if (this->circle.getPosition().y <= this->toppos - 5)
+				this->circle.move(0, distance);
 		}
 	}
 };
