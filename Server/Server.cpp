@@ -104,7 +104,7 @@ int main() {
 	MovingPlatform m1;
 
 	// Client moving platform processing
-	
+
 
 	while (true) {
 		zmq::message_t request;
@@ -165,8 +165,8 @@ int main() {
 				replyString += "y_pos: " + to_string(it->client_toppos) + " ";
 				replyString += "\n";
 			}
-			
-			
+
+
 			//  Send reply back to client
 			zmq::message_t reply(replyString.size());
 			std::memcpy(reply.data(), replyString.data(), replyString.size());

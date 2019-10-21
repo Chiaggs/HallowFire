@@ -48,22 +48,6 @@ public:
 		this->rectangle.setFillColor(sf::Color::Red);
 		this->rectangle.setPosition(700.f, 545.f);
 	}
-
-	// Public interface functions
-	void processMovement(float time) {
-		float speed = 500;
-		float distance = speed * time;
-		//cout << "Distance: " << distance;
-		int leftpos = this->rectangle.getPosition().x;
-		if (leftpos <= 0)
-			towardsLeft = false;
-		if (leftpos >= 720)
-			towardsLeft = true;
-		if (towardsLeft)
-			this->rectangle.move(-(distance), 0.f);
-		else
-			this->rectangle.move(distance, 0.f);
-	}
 };
 
 class Platform : public Renderable {
