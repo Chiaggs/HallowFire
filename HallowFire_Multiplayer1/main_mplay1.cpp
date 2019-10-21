@@ -26,7 +26,7 @@ void pause_unpause(int&, bool&);
 
 void adjustTicSize(timeLine&);
 
-// client multithreading
+// client multithreading arg sender
 class arg_wrapper {
 public:
 	string delimiter;
@@ -35,6 +35,7 @@ public:
 	bool isPaused;
 };
 
+// global variables for shared memory between socket and main thread
 float other_player_x;
 float other_player_y;
 float other_player2_x;
