@@ -50,11 +50,19 @@ public:
 	}
 };
 
-class Platform : public Renderable {
+class static_objects : public Renderable {
 public:
 	// Variables
 	static int objectCount;
 
+	// public interface functions
+	int getObjectCount() {
+		return objectCount;
+	}
+};
+
+class Platform : public static_objects {
+public:
 	// Constrcutor
 	Platform() {
 		objectCount++;
@@ -77,10 +85,35 @@ public:
 		}
 		return pos;
 	}
+};
 
-	// public interface functions
-	int getObjectCount() {
-		return objectCount;
+class SpawnPoint : public static_objects {
+public:
+	// constrcutor
+	SpawnPoint() {
+		length = 50;
+		breadth = 50;
+		this->rectangle.setSize(sf::Vector2f(length, breadth));
+		this->rectangle.setFillColor(sf::Color::Red);
+		setInitialPosition();
+	}
+	void setInitialPosition() {
+		this->rectangle.setPosition(50.f, 250.f);
+	}
+};
+
+class DeathZone : public static_objects {
+public:
+	// constrcutor
+	DeathZone() {
+		length = 50;
+		breadth = 40;
+		this->rectangle.setSize(sf::Vector2f(length, breadth));
+		this->rectangle.setFillColor(sf::Color::Red);
+		setInitialPosition();
+	}
+	void setInitialPosition() {
+		this->rectangle.setPosition(250.f, 559.f);
 	}
 };
 
@@ -121,7 +154,7 @@ public:
 		float speed = 400;
 		float distance = speed * time;
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-			if (this->circle.getPosition().y <= this->toppos - 5)
+			if (this->circle.getPosition().y < this->toppos)
 				this->circle.move(0, distance);
 		}
 	}

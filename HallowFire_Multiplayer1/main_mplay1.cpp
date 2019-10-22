@@ -18,6 +18,7 @@
 using namespace std;
 int Platform::objectCount = 0;
 bool processCharacterMovingPlatformCollision(Character, MovingPlatform);
+bool processCharacterDeathZoneCollision(Character, DeathZone);
 void resizeView(const sf::RenderWindow&, sf::View&);
 void processScaleToggle(bool&);
 void updateScore(float& score, bool& gameOver, float);
@@ -141,6 +142,8 @@ int main() {
 
 	//Defing Entities
 	Platform p1, p2, p3;
+	SpawnPoint sp1;
+	DeathZone dz1;
 	Character c1, c2, c3;
 	MovingPlatform mp1;
 	timeLine t1;
@@ -216,10 +219,12 @@ int main() {
 		window.draw(p3.rectangle);
 		window.draw(c1.circle);
 		window.draw(mp1.rectangle);
+		//window.draw(sp1.rectangle);
+		//window.draw(dz1.rectangle);
 		text.setPosition(sf::Vector2f(c1.circle.getPosition().x - 400, c1.circle.getPosition().y - 300));
 		updateScoreHUD(text, score, gameOver);
 		window.draw(text);
-		//mp1.processMovement(elapsedTime);
+		// mp1.processMovement(elapsedTime);
 		if (takeInput)
 			c1.processKeyboardInput(elapsedTime);
 		c1.processGravity(elapsedTime);
@@ -244,9 +249,14 @@ int main() {
 		bool collision = processCharacterMovingPlatformCollision(c1, mp1);
 		if (collision)
 			gameOver = true;
-
+		bool char_death_zone1 = processCharacterDeathZoneCollision(c1, dz1);
+		if (char_death_zone1) {
+			cout << "Death Zone Collision Occured" << endl;
+			c1.circle.setPosition(sp1.rectangle.getPosition());
+		}
+			
 		// Socket Programming
-		//cout << "Character Positions are: " << c1.getPosition().x << " " << c1.getPosition().y << endl;
+		// cout << "Character Positions are: " << c1.getPosition().x << " " << c1.getPosition().y << endl;
 		
 		th3.join();
 		bool other_player = false;
@@ -260,7 +270,7 @@ int main() {
 			window.draw(c3.circle);
 		}
 		if (!args_list.isPaused) {
-			//cout << "Mp's are" << mp_x << mp_y << endl;
+			// cout << "Mp's are" << mp_x << mp_y << endl;
 			mp1.rectangle.setPosition(sf::Vector2f(mp_x, mp_y));
 			if (other_player)
 				c2.circle.setPosition(sf::Vector2f(other_player_x, other_player_y));
@@ -287,6 +297,16 @@ bool processCharacterMovingPlatformCollision(Character c, MovingPlatform mp) {
 
 bool processCharacterPlatformCollision(Character c, Platform p) {
 	bool collision = false;
+	return collision;
+}
+
+bool processCharacterDeathZoneCollision(Character c, DeathZone dz1) {
+	bool collision = false;
+	sf::FloatRect characterBoundingBox = c.circle.getGlobalBounds();
+	sf::FloatRect DeathZoneBoundingBox = dz1.rectangle.getGlobalBounds();
+	if (characterBoundingBox.intersects(DeathZoneBoundingBox)) {
+		collision = true;
+	}
 	return collision;
 }
 
