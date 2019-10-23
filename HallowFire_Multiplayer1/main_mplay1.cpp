@@ -44,6 +44,8 @@ float other_player2_x;
 float other_player2_y;
 float mp_x;
 float mp_y;
+float mp2_x;
+float mp2_y;
 
 class socket_initializer {
 public:
@@ -78,6 +80,8 @@ void client_processor(arg_wrapper args_list)
 	int iteration = 0;
 	mp_x = 0;
 	mp_y = 0;
+	mp2_x = 0;
+	mp2_y = 0;
 	other_player_x = 0;
 	other_player_y = 0;
 	other_player2_x = 0;
@@ -95,21 +99,29 @@ void client_processor(arg_wrapper args_list)
 			converter >> mp_y;
 		}
 		if (iteration == 5) {
-
 			stringstream converter(token);
-			converter >> other_player_x;
+			converter >> mp2_x;
 		}
 		if (iteration == 7) {
-
 			stringstream converter(token);
-			converter >> other_player_y;
+			converter >> mp2_y;
 		}
 		if (iteration == 9) {
 
 			stringstream converter(token);
-			converter >> other_player2_x;
+			converter >> other_player_x;
 		}
 		if (iteration == 11) {
+
+			stringstream converter(token);
+			converter >> other_player_y;
+		}
+		if (iteration == 13) {
+
+			stringstream converter(token);
+			converter >> other_player2_x;
+		}
+		if (iteration == 15) {
 
 			stringstream converter(token);
 			converter >> other_player2_y;
@@ -149,7 +161,8 @@ int main() {
 	DeathZone dz1;
 	SideBoudary sb1;
 	Character c1, c2, c3;
-	MovingPlatform mp1;
+	MovingPlatform mp1 (80, 10);
+	MovingPlatform mp2(50, 10);
 	timeLine t1;
 	ViewManager vm;
 	bool gameOver = false;
@@ -238,6 +251,7 @@ int main() {
 		window.draw(p3.rectangle);
 		window.draw(c1.circle);
 		window.draw(mp1.rectangle);
+		window.draw(mp2.rectangle);
 		//window.draw(sp1.rectangle);
 		//window.draw(dz1.rectangle);
 		//window.draw(sb1.rectangle);
@@ -297,6 +311,7 @@ int main() {
 		if (!args_list.isPaused) {
 			// cout << "Mp's are" << mp_x << mp_y << endl;
 			mp1.rectangle.setPosition(sf::Vector2f(mp_x, mp_y));
+			mp2.rectangle.setPosition(sf::Vector2f(mp2_x, mp2_y));
 			if (other_player)
 				c2.circle.setPosition(sf::Vector2f(other_player_x, other_player_y));
 			if (other_player2)

@@ -36,17 +36,12 @@ public:
 
 class MovingPlatform : public Movable {
 public:
-	// Variables
-	bool towardsLeft;
-
 	// Constrcutor
-	MovingPlatform() {
-		length = 80;
-		breadth = 10;
-		towardsLeft = true;
+	MovingPlatform(int length, int breadth) {
+		this->length = length; // 80
+		this->breadth = breadth; // 10
 		this->rectangle.setSize(sf::Vector2f(length, breadth));
 		this->rectangle.setFillColor(sf::Color::Red);
-		this->rectangle.setPosition(700.f, 545.f);
 	}
 };
 

@@ -22,12 +22,14 @@ public:
 	int length;
 	int breadth;
 	bool towardsLeft;
+	bool towardsBottom;
 
 	// Constrcutor
 	MovingPlatform() {
 		length = 80;
 		breadth = 10;
 		towardsLeft = true;
+		towardsBottom = true;
 		this->setSize(sf::Vector2f(length, breadth));
 		this->setFillColor(sf::Color::Red);
 		this->setPosition(700.f, 545.f);
@@ -47,6 +49,43 @@ public:
 			this->move(-(distance), 0.f);
 		else
 			this->move(distance, 0.f);
+	}
+};
+
+class MovingPlatformType2 : public sf::RectangleShape {
+public:
+	// Variables
+	int length;
+	int breadth;
+	bool towardsLeft;
+	bool towardsBottom;
+
+	// Constrcutor
+	MovingPlatformType2() {
+		length = 80;
+		breadth = 10;
+		towardsLeft = true;
+		towardsBottom = true;
+		this->setSize(sf::Vector2f(length, breadth));
+		this->setFillColor(sf::Color::Red);
+		this->setPosition(250.f, 550.f);
+	}
+
+	// Public interface functions
+	void processMovement(float time) {
+		float speed = 200;
+		float distance = speed * time;
+		int toppos = this->getPosition().y;
+		//cout << "Current pos is " << this->getPosition().x << " " << this->getPosition().y << endl;
+		if (toppos >= 560)
+			towardsBottom = false;
+		if (toppos <= 400)
+			towardsBottom = true;
+		if (towardsBottom)
+			this->move(0.f, (distance));
+		else
+			this->move(0.f, -(distance));
+		
 	}
 };
 
@@ -107,6 +146,7 @@ class arg_wrapper {
 public:
 	string delimiter;
 	MovingPlatform m1;
+	MovingPlatformType2 m2;
 };
 
 void client_processor(arg_wrapper args_list)
@@ -115,6 +155,7 @@ void client_processor(arg_wrapper args_list)
 	s1.socket.recv(request, zmq::recv_flags::dontwait);
 	if (!request.empty()) {
 		MovingPlatform m1 = args_list.m1;
+		MovingPlatformType2 m2 = args_list.m2;
 		string delimiter = args_list.delimiter;
 		string clientData = string(static_cast<char*>(request.data()), request.size());
 		size_t pos = 0;
@@ -159,6 +200,8 @@ void client_processor(arg_wrapper args_list)
 		string replyString = "";
 		replyString += "mp_x: " + to_string(m1.getPosition().x) + " ";
 		replyString += "mp_y: " + to_string(m1.getPosition().y) + " ";
+		replyString += "mp2_x: " + to_string(m2.getPosition().x) + " ";
+		replyString += "mp2_y: " + to_string(m2.getPosition().y) + " ";
 		for (it = clientMapping.begin(); it != clientMapping.end(); ++it) {
 			iteration++;
 			//cout << "Client: " << iteration << " x pos: " << it->client_leftpos << " y pos: "<< it->client_toppos<< endl;
@@ -186,6 +229,7 @@ int main() {
 	float elapsedTime = 0;
 	timeLine t1;
 	MovingPlatform m1;
+	MovingPlatformType2 m2;
 
 	// Client moving platform processing
 
@@ -193,11 +237,13 @@ int main() {
 		//  Dont wait for client requests, do thing a synchonously
 		arg_wrapper args_list;
 		args_list.m1 = m1;
+		args_list.m2 = m2;
 		args_list.delimiter = delimiter;
 		thread th3(client_processor, args_list);
 		// Game Logic
 		// timeline proceeds even when clients dont responds, server works asynchronously
 		m1.processMovement(elapsedTime);
+		m2.processMovement(elapsedTime);
 		elapsedTime = t1.restart();
 		th3.join();
 	}
