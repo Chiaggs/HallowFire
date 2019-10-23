@@ -117,6 +117,21 @@ public:
 	}
 };
 
+class SideBoudary : public static_objects {
+public:
+	// constrcutor
+	SideBoudary() {
+		length = 5;
+		breadth = 400;
+		this->rectangle.setSize(sf::Vector2f(length, breadth));
+		this->rectangle.setFillColor(sf::Color::Red);
+		setInitialPosition();
+	}
+	void setInitialPosition() {
+		this->rectangle.setPosition(450.f, 160.f);
+	}
+};
+
 class Character : public Movable {
 public:
 	// Variables
@@ -157,5 +172,23 @@ public:
 			if (this->circle.getPosition().y < this->toppos)
 				this->circle.move(0, distance);
 		}
+	}
+};
+
+class ViewManager {
+public:
+	sf::View view;
+	bool isTranslate;
+	ViewManager() {
+		view = sf::View(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(800, 600));
+		isTranslate = false;
+	}
+	void processTranslation(bool isTranslate, Character c) {
+		if (isTranslate) {
+			this->view.setCenter(c.circle.getPosition());
+		}
+	}
+	sf::View getView() {
+		return this->view;
 	}
 };

@@ -19,6 +19,7 @@ using namespace std;
 int Platform::objectCount = 0;
 bool processCharacterMovingPlatformCollision(Character, MovingPlatform);
 bool processCharacterDeathZoneCollision(Character, DeathZone);
+bool processCharacterSideBoundary(Character, SideBoudary);
 void resizeView(const sf::RenderWindow&, sf::View&);
 void processScaleToggle(bool&);
 void updateScore(float& score, bool& gameOver, float);
@@ -135,6 +136,8 @@ int main() {
 	window.create(sf::VideoMode(800, 600), "HallowFire", sf::Style::Close | sf::Style::Resize, settings); // Optional thrid arg can be used to specify Window style
 	//window.setVerticalSyncEnabled(true); // Setting VSync to true, to prevent screen tearing
 	sf::Texture platformTexture;
+	sf::Texture platformTexture2;
+	sf::Texture platformTexture3;
 	sf::View view(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(800, 600));
 	sf::Font font;
 	sf::Text text;
@@ -144,15 +147,18 @@ int main() {
 	Platform p1, p2, p3;
 	SpawnPoint sp1;
 	DeathZone dz1;
+	SideBoudary sb1;
 	Character c1, c2, c3;
 	MovingPlatform mp1;
 	timeLine t1;
+	ViewManager vm;
 	bool gameOver = false;
 	bool scaleToggle = false;
 	float score = 0;
 	int pauseTicker = 0;
 	bool isPaused = false;
 	bool takeInput = true;
+	bool setInitialView = true;
 
 	// entities for socket programming
 	string delimiter = " ";
@@ -162,8 +168,18 @@ int main() {
 	// Initializing entities
 	if (platformTexture.loadFromFile("Textures/wooden-texture.jpg")) {
 		p1.rectangle.setTexture(&platformTexture);
-		p2.rectangle.setTexture(&platformTexture);
-		p3.rectangle.setTexture(&platformTexture);
+	}
+	else {
+		cout << "Failure Loading texture";
+	}
+	if (platformTexture2.loadFromFile("Textures/wooden-texture2.jpg")) {
+		p2.rectangle.setTexture(&platformTexture2);
+	}
+	else {
+		cout << "Failure Loading texture";
+	}
+	if (platformTexture3.loadFromFile("Textures/wooden-texture3.jpg")) {
+		p3.rectangle.setTexture(&platformTexture3);
 	}
 	else {
 		cout << "Failure Loading texture";
@@ -198,9 +214,12 @@ int main() {
 		}
 
 		// reset the frame
-		view.setCenter(sf::Vector2f(c1.circle.getPosition().x, c1.circle.getPosition().y));
+		if (setInitialView) {
+			vm.processTranslation(true, c1);
+			setInitialView = false;
+		}
 		window.clear(sf::Color::Black);
-		window.setView(view);
+		window.setView(vm.getView());
 		processScaleToggle(scaleToggle);
 
 		// Code to draw contents in the frame
@@ -221,6 +240,7 @@ int main() {
 		window.draw(mp1.rectangle);
 		//window.draw(sp1.rectangle);
 		//window.draw(dz1.rectangle);
+		//window.draw(sb1.rectangle);
 		text.setPosition(sf::Vector2f(c1.circle.getPosition().x - 400, c1.circle.getPosition().y - 300));
 		updateScoreHUD(text, score, gameOver);
 		window.draw(text);
@@ -253,6 +273,11 @@ int main() {
 		if (char_death_zone1) {
 			cout << "Death Zone Collision Occured" << endl;
 			c1.circle.setPosition(sp1.rectangle.getPosition());
+		}
+		bool char_side_boundary1 = processCharacterSideBoundary(c1, sb1);
+		if (char_side_boundary1) {
+			vm.processTranslation(char_side_boundary1, c1);
+			char_side_boundary1 = false;
 		}
 			
 		// Socket Programming
@@ -305,6 +330,16 @@ bool processCharacterDeathZoneCollision(Character c, DeathZone dz1) {
 	sf::FloatRect characterBoundingBox = c.circle.getGlobalBounds();
 	sf::FloatRect DeathZoneBoundingBox = dz1.rectangle.getGlobalBounds();
 	if (characterBoundingBox.intersects(DeathZoneBoundingBox)) {
+		collision = true;
+	}
+	return collision;
+}
+
+bool processCharacterSideBoundary(Character c, SideBoudary sb1) {
+	bool collision = false;
+	sf::FloatRect characterBoundingBox = c.circle.getGlobalBounds();
+	sf::FloatRect SideBoundaryBoundingBox = sb1.rectangle.getGlobalBounds();
+	if (characterBoundingBox.intersects(SideBoundaryBoundingBox)) {
 		collision = true;
 	}
 	return collision;
