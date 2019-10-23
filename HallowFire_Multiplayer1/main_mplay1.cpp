@@ -33,7 +33,7 @@ class arg_wrapper {
 public:
 	string delimiter;
 	int ClientID;
-	Character c1, c2, c3;
+	Character c1, c2, c3, c4;
 	bool isPaused;
 };
 
@@ -42,6 +42,8 @@ float other_player_x;
 float other_player_y;
 float other_player2_x;
 float other_player2_y;
+float other_player3_x;
+float other_player3_y;
 float mp_x;
 float mp_y;
 float mp2_x;
@@ -86,6 +88,8 @@ void client_processor(arg_wrapper args_list)
 	other_player_y = 0;
 	other_player2_x = 0;
 	other_player2_y = 0;
+	other_player3_x = 0;
+	other_player3_y = 0;
 	std::string token;
 	//cout << recieved_data << endl;
 	while ((pos = recieved_data.find(args_list.delimiter)) != std::string::npos) {
@@ -126,6 +130,16 @@ void client_processor(arg_wrapper args_list)
 			stringstream converter(token);
 			converter >> other_player2_y;
 		}
+		if (iteration == 17) {
+
+			stringstream converter(token);
+			converter >> other_player3_x;
+		}
+		if (iteration == 19) {
+
+			stringstream converter(token);
+			converter >> other_player3_y;
+		}
 		/*if (iteration == 1) {
 			stringstream converter(token);
 			converter >> client_leftpos;
@@ -160,7 +174,7 @@ int main() {
 	SpawnPoint sp1;
 	DeathZone dz1;
 	SideBoudary sb1;
-	Character c1, c2, c3;
+	Character c1, c2, c3, c4;
 	MovingPlatform mp1 (80, 10);
 	MovingPlatform mp2(50, 10);
 	timeLine t1;
@@ -243,6 +257,7 @@ int main() {
 		args_list.c1 = c1;
 		args_list.c2 = c2;
 		args_list.c3 = c3;
+		args_list.c4 = c4;
 		thread th3(client_processor, args_list);
 
 		updateScore(score, gameOver, elapsedTime);
@@ -300,6 +315,7 @@ int main() {
 		th3.join();
 		bool other_player = false;
 		bool other_player2 = false;
+		bool other_player3 = false;
 		if (other_player_x != 0 && other_player_y != 0) {
 			other_player = true;
 			window.draw(c2.circle);
@@ -307,6 +323,10 @@ int main() {
 		if (other_player2_x != 0 && other_player2_y != 0) {
 			other_player2 = true;
 			window.draw(c3.circle);
+		}
+		if (other_player3_x != 0 && other_player3_y != 0) {
+			other_player3 = true;
+			window.draw(c4.circle);
 		}
 		if (!args_list.isPaused) {
 			// cout << "Mp's are" << mp_x << mp_y << endl;
@@ -316,6 +336,8 @@ int main() {
 				c2.circle.setPosition(sf::Vector2f(other_player_x, other_player_y));
 			if (other_player2)
 				c3.circle.setPosition(sf::Vector2f(other_player2_x, other_player2_y));
+			if(other_player3)
+				c4.circle.setPosition(sf::Vector2f(other_player3_x, other_player3_y));
 		}
 
 		// end of the current frame
