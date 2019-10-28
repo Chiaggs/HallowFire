@@ -1,2 +1,2 @@
 # HallowFire
-Game developed using SFML
+A Multiplayer 2D platoformer game developed using SFML
