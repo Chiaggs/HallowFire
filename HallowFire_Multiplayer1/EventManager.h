@@ -25,6 +25,18 @@ public:
 		else if (eventType == "character_spawn") {
 			priority = 2;
 		}
+		else if (eventType == "playback_start") {
+			priority = 6;
+		}
+		else if (eventType == "playback_stop") {
+			priority = 7;
+		}
+		else if (eventType == "charcter_teleport") {
+			priority = 8;
+		}
+		else if (eventType == "wildcard") {
+			priority = 9;
+		}
 		else {
 			priority = 0;
 		}
@@ -53,6 +65,32 @@ public:
 			event_queue.pop();
 			if (ge.eventType == "character_death") {
 				cout << "Chcracter Died ";
+			}
+			if (ge.eventType == "wildcard") {
+				cout << "wildcard";
+				ge.go->handleEvent(ge.eventType);
+			}
+			if (ge.eventType == "charcter_teleport") {
+				cout << "charcter_teleport";
+				ge.go->handleEvent(ge.eventType);
+			}
+			if (ge.eventType == "playback_stop") {
+				cout << "playback_stop";
+				ge.go->handleEvent(ge.eventType);
+			}
+			if (ge.eventType == "playback_start") {
+				cout << "playback_start";
+				ge.go->handleEvent(ge.eventType);
+			}
+			if (ge.eventType == "character_spawn") {
+				cout << "character_spawn";
+				ge.go->handleEvent(ge.eventType);
+			}
+			if (ge.eventType == "character_collision") {
+				cout << "character_collision";
+			}
+			if (ge.eventType == "user_input") {
+				cout << "user_input";
 			}
 			//ge.go->handleEvent();
 		}

@@ -575,9 +575,15 @@ void adjustTicSize(timeLine& t1) {
 		t1.ticSize = 1;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::J)) {
+		GameObject* goPtr = new Character();
+		event_manager.raiseEvent(Game_Event("user_input", t1, goPtr));
+		delete goPtr;
 		t1.ticSize = 0.5;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::L)) {
+		GameObject* goPtr = new Character();
+		event_manager.raiseEvent(Game_Event("user_input", t1, goPtr));
+		delete goPtr;
 		t1.ticSize = 2;
 	}
 }

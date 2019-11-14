@@ -143,6 +143,7 @@ public:
 	}
 	void handleEvent(string eventType) {
 		cout << " SideBoundary's handleEvent called";
+		// bump to chcarcter handle event
 	}
 };
 
@@ -188,7 +189,22 @@ public:
 		}
 	}
 	void handleEvent(string eventType) {
-		
+		if (eventType == "user_input") {
+			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+				if (this->circle.getPosition().y < this->toppos)
+					this->circle.move(0, 5);
+			}
+		}
+		if (eventType == "character_death") {
+			if (this->circle.getPosition().y < this->toppos)
+				this->circle.move(0, 5);
+		}
+		if (eventType == "character_spawn") {
+			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+				if (this->circle.getPosition().y < this->toppos)
+					this->circle.move(0, 5);
+			}
+		}
 	}
 };
 
