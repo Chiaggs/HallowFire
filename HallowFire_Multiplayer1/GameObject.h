@@ -1,4 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
+
+using namespace std;
 int GID = 0;
 class GameObject {
 public:
@@ -10,6 +13,7 @@ public:
 	int getObjectID() {
 		return ID;
 	}
+	virtual void handleEvent(string eventType) = 0;
 };
 
 class Renderable : public GameObject {
@@ -42,6 +46,9 @@ public:
 		this->breadth = breadth; // 10
 		this->rectangle.setSize(sf::Vector2f(length, breadth));
 		this->rectangle.setFillColor(sf::Color::Red);
+	}
+	void handleEvent(string eventType) {
+		cout << " Character's handleEvent called";
 	}
 };
 
@@ -80,6 +87,9 @@ public:
 		}
 		return pos;
 	}
+	void handleEvent(string eventType) {
+		cout << " Platform's handleEvent called";
+	}
 };
 
 class SpawnPoint : public static_objects {
@@ -94,6 +104,9 @@ public:
 	}
 	void setInitialPosition() {
 		this->rectangle.setPosition(50.f, 250.f);
+	}
+	void handleEvent(string eventType) {
+		cout << " SpawnPoints's handleEvent called";
 	}
 };
 
@@ -110,6 +123,9 @@ public:
 	void setInitialPosition() {
 		this->rectangle.setPosition(250.f, 559.f);
 	}
+	void handleEvent(string eventType) {
+		cout << " DeathZone's handleEvent called";
+	}
 };
 
 class SideBoudary : public static_objects {
@@ -124,6 +140,9 @@ public:
 	}
 	void setInitialPosition() {
 		this->rectangle.setPosition(450.f, 160.f);
+	}
+	void handleEvent(string eventType) {
+		cout << " SideBoundary's handleEvent called";
 	}
 };
 
@@ -167,6 +186,9 @@ public:
 			if (this->circle.getPosition().y < this->toppos)
 				this->circle.move(0, distance);
 		}
+	}
+	void handleEvent(string eventType) {
+		
 	}
 };
 

@@ -1,13 +1,14 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "GameObject.h"
-#include "TimeLine.h"
+#include "EventManager.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string>
 #include <zmq.hpp>
 #include <thread>
 #include <future>
+#include <vector>
 #ifndef _WIN32
 #include <unistd.h>
 #else
@@ -27,6 +28,29 @@ void updateScoreHUD(sf::Text&, float&, bool&);
 void pause_unpause(int&, bool&);
 
 void adjustTicSize(timeLine&);
+
+class Replay_Instance {
+public:
+	float player_position_x;
+	float player_position_y;
+	long timestamp;
+	float mp1_x = 0;
+	float mp1_y = 0;
+	float mp2_x = 0;
+	float mp2_y = 0;
+	// other player state
+	float other_player_x = 0;
+	float other_player_y = 0;
+	float other_player2_x = 0;
+	float other_player2_y = 0;
+	float other_player3_x = 0;
+	float other_player3_y = 0;
+	Replay_Instance(float player_position_x, float player_position_y, long timestamp) {
+		this->player_position_x = player_position_x;
+		this->player_position_y = player_position_y;
+		this->timestamp = timestamp;
+	}
+};
 
 // client multithreading arg sender
 class arg_wrapper {
@@ -48,6 +72,7 @@ float mp_x;
 float mp_y;
 float mp2_x;
 float mp2_y;
+EventManager event_manager;
 
 class socket_initializer {
 public:
@@ -179,6 +204,7 @@ int main() {
 	MovingPlatform mp2(50, 10);
 	timeLine t1;
 	ViewManager vm;
+	// Custom Event Management
 	bool gameOver = false;
 	bool scaleToggle = false;
 	float score = 0;
@@ -186,6 +212,19 @@ int main() {
 	bool isPaused = false;
 	bool takeInput = true;
 	bool setInitialView = true;
+	bool isRecording = false;
+	bool isPlayback = false;
+
+	// playback Variables
+	milliseconds ms = duration_cast<milliseconds>(
+		system_clock::now().time_since_epoch()
+		);
+	long playback_duration= ms.count();
+	long playback_reference_time = 0;
+	float playback_multiplier = 1;
+	vector<Replay_Instance> replay_array;
+	float client_init_x = 0;
+	float client_init_y = 0;
 
 	// entities for socket programming
 	string delimiter = " ";
@@ -240,6 +279,105 @@ int main() {
 				takeInput = false;
 		}
 
+		//playback processing
+		// trigger recording / playback
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
+			if (!isRecording) {
+				isRecording = true;
+				cout << "Recording started" << endl;
+				milliseconds ms = duration_cast<milliseconds>(
+					system_clock::now().time_since_epoch()
+					);
+				playback_duration = ms.count();
+				replay_array.clear();
+			}
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::V)) {
+			if (isRecording) {
+				isRecording = false;
+				cout << "Recording stopped" << endl;
+				/*for (auto x : replay_array) {
+					cout << x.player_position_x << " " << x.player_position_y << " " << x.timestamp << endl;
+				}*/
+			}
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
+			if (isRecording == false && !isPlayback) {
+				isPlayback = true;
+				cout << "Playing Back" << endl;
+				client_init_x = c1.circle.getPosition().x;
+				client_init_y = c1.circle.getPosition().y;
+			}
+			milliseconds ms = duration_cast<milliseconds>(
+				system_clock::now().time_since_epoch()
+				);
+			playback_reference_time = ms.count();
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::B)) {
+			playback_multiplier = 0.5;
+			cout << "Playback speed half";
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::N)) {
+			playback_multiplier = 1;
+			cout << "Playback speed original";
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+			playback_multiplier = 2;
+			cout << "Playback speed doubled";
+		}
+
+
+		// manage what happens after triggering recording / playback
+		if (isRecording) {
+			milliseconds ms = duration_cast<milliseconds>(
+				system_clock::now().time_since_epoch()
+				);
+			long current_time = ms.count();
+			Replay_Instance replay_instance = Replay_Instance(c1.circle.getPosition().x, c1.circle.getPosition().y, current_time - playback_duration);
+			replay_instance.mp1_x = mp1.rectangle.getPosition().x;
+			replay_instance.mp1_y = mp1.rectangle.getPosition().y;
+			replay_instance.mp2_x = mp2.rectangle.getPosition().x;
+			replay_instance.mp2_y = mp2.rectangle.getPosition().y;
+			replay_instance.other_player_x = other_player_x;
+			replay_instance.other_player_y = other_player_y;
+			replay_instance.other_player2_x = other_player2_x;
+			replay_instance.other_player2_y = other_player2_y;
+			replay_instance.other_player3_x = other_player3_x;
+			replay_instance.other_player3_y = other_player3_y;
+			replay_array.push_back(replay_instance);
+		}
+		if (isPlayback) {
+			milliseconds ms = duration_cast<milliseconds>(
+				system_clock::now().time_since_epoch()
+				);
+			long hooked_time =  ms.count() - playback_reference_time;
+			hooked_time = hooked_time * playback_multiplier;
+			if (replay_array.empty()) {
+				cout << "Array is emptied";
+				isPlayback = false;
+				c1.circle.setPosition(client_init_x, client_init_y);
+			}
+			else {
+				Replay_Instance replay_i = replay_array.front();
+				c1.circle.setPosition(replay_i.player_position_x, replay_i.player_position_y);
+				mp1.rectangle.setPosition(replay_i.mp1_x, replay_i.mp1_y);
+				mp2.rectangle.setPosition(replay_i.mp2_x, replay_i.mp2_y);
+				other_player_x = replay_i.other_player_x;
+				other_player_y = replay_i.other_player_y;
+				other_player2_x = replay_i.other_player2_x;
+				other_player2_y = replay_i.other_player2_y;
+				other_player3_x = replay_i.other_player3_x;
+				other_player3_y = replay_i.other_player3_y;
+				for (int i = 0; i < replay_array.size(); i++) {
+					if (hooked_time > (replay_array.at(i).timestamp)) {
+						replay_array.erase(replay_array.begin(), replay_array.begin() + i+1);
+						break;
+					}
+				}
+			}
+		}
+
+
 		// reset the frame
 		if (setInitialView) {
 			vm.processTranslation(true, c1);
@@ -260,23 +398,23 @@ int main() {
 		args_list.c4 = c4;
 		thread th3(client_processor, args_list);
 
-		updateScore(score, gameOver, elapsedTime);
+		if (!isPlayback) {
+			updateScore(score, gameOver, elapsedTime);
+			window.draw(text);
+		}
 		window.draw(p1.getRectangleObject());
 		window.draw(p2.rectangle);
 		window.draw(p3.rectangle);
 		window.draw(c1.circle);
 		window.draw(mp1.rectangle);
 		window.draw(mp2.rectangle);
-		//window.draw(sp1.rectangle);
-		//window.draw(dz1.rectangle);
-		//window.draw(sb1.rectangle);
 		text.setPosition(sf::Vector2f(c1.circle.getPosition().x - 400, c1.circle.getPosition().y - 300));
 		updateScoreHUD(text, score, gameOver);
-		window.draw(text);
-		// mp1.processMovement(elapsedTime);
-		if (takeInput)
-			c1.processKeyboardInput(elapsedTime);
-		c1.processGravity(elapsedTime);
+		if (!isPlayback) {
+			if (takeInput)
+				c1.processKeyboardInput(elapsedTime);
+			c1.processGravity(elapsedTime);
+		}
 
 		// GameTime management
 		if (takeInput)
@@ -295,20 +433,24 @@ int main() {
 			elapsedTime = t1.restart();
 
 		// collision processing
-		bool collision = processCharacterMovingPlatformCollision(c1, mp1);
-		if (collision)
-			gameOver = true;
-		bool char_death_zone1 = processCharacterDeathZoneCollision(c1, dz1);
-		if (char_death_zone1) {
-			cout << "Death Zone Collision Occured" << endl;
-			c1.circle.setPosition(sp1.rectangle.getPosition());
-		}
-		bool char_side_boundary1 = processCharacterSideBoundary(c1, sb1);
-		if (char_side_boundary1) {
-			vm.processTranslation(char_side_boundary1, c1);
-			char_side_boundary1 = false;
-		}
-			
+		if (!isPlayback) {
+			bool collision = processCharacterMovingPlatformCollision(c1, mp1);
+			if (collision)
+				gameOver = true;
+			bool char_death_zone1 = processCharacterDeathZoneCollision(c1, dz1);
+			if (char_death_zone1) {
+				cout << "Death Zone Collision Occured" << endl;
+				c1.circle.setPosition(sp1.rectangle.getPosition());
+				//GameObject* goPtr = new Character();
+				//event_manager.raiseEvent(Game_Event("character_death", t1, goPtr));
+				//delete goPtr;
+			}
+			bool char_side_boundary1 = processCharacterSideBoundary(c1, sb1);
+			if (char_side_boundary1) {
+				vm.processTranslation(char_side_boundary1, c1);
+				char_side_boundary1 = false;
+			}
+		}	
 		// Socket Programming
 		// cout << "Character Positions are: " << c1.getPosition().x << " " << c1.getPosition().y << endl;
 		
@@ -330,8 +472,10 @@ int main() {
 		}
 		if (!args_list.isPaused) {
 			// cout << "Mp's are" << mp_x << mp_y << endl;
-			mp1.rectangle.setPosition(sf::Vector2f(mp_x, mp_y));
-			mp2.rectangle.setPosition(sf::Vector2f(mp2_x, mp2_y));
+			if (!isPlayback) {
+				mp1.rectangle.setPosition(sf::Vector2f(mp_x, mp_y));
+				mp2.rectangle.setPosition(sf::Vector2f(mp2_x, mp2_y));
+			}
 			if (other_player)
 				c2.circle.setPosition(sf::Vector2f(other_player_x, other_player_y));
 			if (other_player2)
@@ -339,7 +483,8 @@ int main() {
 			if(other_player3)
 				c4.circle.setPosition(sf::Vector2f(other_player3_x, other_player3_y));
 		}
-
+		t1.updateGameEngineTime();
+		event_manager.handlePendingEvents();
 		// end of the current frame
 		window.display();
 	}
@@ -424,6 +569,9 @@ void pause_unpause(int& pauseTicker, bool& isPaused) {
 
 void adjustTicSize(timeLine& t1) {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::K)) {
+		GameObject* goPtr = new Character();
+		event_manager.raiseEvent(Game_Event("user_input", t1, goPtr));
+		delete goPtr;
 		t1.ticSize = 1;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::J)) {

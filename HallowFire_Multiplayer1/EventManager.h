@@ -1,5 +1,9 @@
 #include <string>
 #include <SFML/Graphics.hpp>
+#include "TimeLine.h"
+#include <queue>
+#include <iostream>
+
 using namespace std;
 
 class Game_Event {
@@ -7,7 +11,8 @@ public:
 	int priority; // on a scale of 10
 	long timeStamp;
 	string eventType;
-	Game_Event(string eventType) {
+	GameObject *go;
+	Game_Event(string eventType, timeLine t, GameObject *go) {
 		if (eventType == "user_input") {
 			priority = 5;
 		}
@@ -24,13 +29,37 @@ public:
 			priority = 0;
 		}
 		this->eventType = eventType;
-		// add mechanism to initialize time
+		this->timeStamp = t.getGameEngineTime();
+		this->go = go;
+	}
+
+	string serialize_event() {
+		string output = "";
+		return output;
 	}
 };
 
+bool operator<(const Game_Event& p1, const Game_Event& p2)
+{
+	return p1.priority < p2.priority;
+}
+
 class EventManager {
 public:
-
+	priority_queue<Game_Event> event_queue;
+	void handlePendingEvents() {
+		while (!event_queue.empty()) {
+			Game_Event ge = event_queue.top();
+			event_queue.pop();
+			if (ge.eventType == "character_death") {
+				cout << "Chcracter Died ";
+			}
+			//ge.go->handleEvent();
+		}
+	}
+	void raiseEvent(Game_Event ge) {
+		event_queue.push(ge);
+	}
 };
 
 

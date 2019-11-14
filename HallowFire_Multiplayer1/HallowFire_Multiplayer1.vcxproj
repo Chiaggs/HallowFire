@@ -132,6 +132,7 @@
     <ClCompile Include="main_mplay1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="EventManager.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="TimeLine.h" />
   </ItemGroup>
