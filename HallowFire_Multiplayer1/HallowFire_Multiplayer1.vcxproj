@@ -76,7 +76,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\chira\Documents\SFML-2.5.1\include;C:\Users\chira\Documents\ZMQ</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\chira\Documents\dukglue-master\dukglue-master\include;C:\Users\chira\Documents\duktape-2.5.0\src;C:\Users\chira\Documents\SFML-2.5.1\include;C:\Users\chira\Documents\ZMQ</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -103,7 +104,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\chira\Documents\SFML-2.5.1\include;C:\Users\chira\Documents\ZMQ</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\chira\Documents\dukglue-master\dukglue-master\include;C:\Users\chira\Documents\duktape-2.5.0\src;C:\Users\chira\Documents\SFML-2.5.1\include;C:\Users\chira\Documents\ZMQ</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,15 +131,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="duktape.c" />
     <ClCompile Include="main_mplay1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="duktape.h" />
+    <ClInclude Include="duk_config.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="TimeLine.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\HallowFire\Textures\wooden-texture.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="testScript.js" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
