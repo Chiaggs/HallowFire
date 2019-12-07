@@ -145,7 +145,7 @@
     <Image Include="..\HallowFire\Textures\wooden-texture.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="testScript.js" />
+    <None Include="colorScript.js" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

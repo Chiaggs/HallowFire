@@ -57,6 +57,29 @@ public:
 
 // ----------- Code for managin scripting ---------------------
 
+class ScriptManager {
+public:
+	ScriptManager() {
+
+	}
+	static void load_script_from_file(duk_context* ctx, const char* filename)
+	{
+		std::ifstream t(filename);
+		std::stringstream buffer;
+		buffer << t.rdbuf();
+		duk_push_lstring(ctx, buffer.str().c_str(), (duk_size_t)(buffer.str().length()));
+	}
+
+	static duk_ret_t native_print(duk_context* ctx)
+	{
+		duk_push_string(ctx, " ");
+		duk_insert(ctx, 0);
+		duk_join(ctx, duk_get_top(ctx) - 1);
+		printf("%s\n", duk_safe_to_string(ctx, -1));
+		return 0;
+	}
+};
+
 class Vector2f
 {
 public:
@@ -83,23 +106,6 @@ private:
 	double m_fX;
 	double m_fY;
 };
-
-static void load_script_from_file(duk_context* ctx, const char* filename)  
-{																		  
-	std::ifstream t(filename);
-	std::stringstream buffer;
-	buffer << t.rdbuf();
-	duk_push_lstring(ctx, buffer.str().c_str(), (duk_size_t)(buffer.str().length()));
-}
-
-static duk_ret_t native_print(duk_context* ctx)
-{
-	duk_push_string(ctx, " ");
-	duk_insert(ctx, 0);
-	duk_join(ctx, duk_get_top(ctx)- 1);
-	printf("%s\n", duk_safe_to_string(ctx, -1));
-	return 0;
-}
 
 // ------------------------------------------------------------
 
@@ -324,18 +330,19 @@ int main() {
 		exit(1);
 	}
 	// Register objects and member functions inside our context
-	dukglue_register_constructor<Vector2f>(ctx, "Vector2f"); // Can this be done more dynamically? i.e. to allow client to register objects to work with scripts?
+	dukglue_register_constructor<Vector2f>(ctx, "Vector2f");
 	dukglue_register_method(ctx, &Vector2f::Dot, "dot");
 	dukglue_register_method(ctx, &Vector2f::Distance, "distance");
 	dukglue_register_method(ctx, &Vector2f::GetX, "x");
 	dukglue_register_method(ctx, &Vector2f::GetY, "y");
 
 	// Can use the standard duktape API to register c_functions if necessary
-	duk_push_c_function(ctx, native_print, DUK_VARARGS);
+	ScriptManager sm;
+	duk_push_c_function(ctx, sm.native_print, DUK_VARARGS);
 	duk_put_global_string(ctx, "print");
 
 	// Load script from file, evaluate script
-	load_script_from_file(ctx, "testScript.js");
+	sm.load_script_from_file(ctx, "colorScript.js");
 	if (duk_peval(ctx) != 0) {
 		printf("Error occured: %s\n", duk_safe_to_string(ctx, -1));
 		duk_destroy_heap(ctx);
@@ -354,6 +361,22 @@ int main() {
 		printf("Error here: %s\n", duk_safe_to_string(ctx, -1));
 	else
 		printf("%s\n", duk_safe_to_string(ctx, -1));
+
+	string color_red = "red";
+	string color_blue = "blue";
+	string color_green = "green";
+	if (color_red.compare(duk_safe_to_string(ctx, -1)) == 0 ) {
+		cout << "Red Detected";
+	}
+	else if (color_blue.compare(duk_safe_to_string(ctx, -1)) == 0) {
+		cout << "Blue Detected";
+	}
+	else if (color_green.compare(duk_safe_to_string(ctx, -1)) == 0) {
+		cout << "Green Detected";
+	}
+	else {
+		cout << "No color Detected";
+	}
 
 	duk_pop(ctx);
 

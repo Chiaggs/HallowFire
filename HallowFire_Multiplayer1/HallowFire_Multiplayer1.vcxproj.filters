@@ -45,6 +45,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="testScript.js" />
+    <None Include="colorScript.js" />
   </ItemGroup>
 </Project>
