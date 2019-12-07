@@ -85,23 +85,6 @@ class Vector2f
 public:
 	Vector2f(double x, double y) : m_fX(x), m_fY(y) {}
 	Vector2f() { m_fX = 0; m_fY = 0; }
-
-	float Dot(Vector2f& other)
-	{
-		return m_fX * other.GetX() + m_fY * other.GetY();
-	}
-
-	float Distance(Vector2f& other)
-	{
-		return sqrt(pow(m_fX - other.GetX(), 2) + pow(m_fY - other.GetY(), 2));
-	}
-
-	/* Getters and setters */
-	double GetX() { return m_fX; }
-	double GetY() { return m_fY; }
-	void SetX(float x) { m_fX = x; }
-	void SetY(float y) { m_fY = y; }
-
 private:
 	double m_fX;
 	double m_fY;
@@ -323,64 +306,98 @@ int main() {
 	// --------------- Scripting -----------------------
 
 	duk_context* ctx = NULL;
+	duk_context* ctx2 = NULL;
 
 	ctx = duk_create_heap_default();
+	ctx2 = duk_create_heap_default();
 	if (!ctx) {
 		printf("Failed to create a Duktape heap.\n");
 		exit(1);
 	}
-	// Register objects and member functions inside our context
-	dukglue_register_constructor<Vector2f>(ctx, "Vector2f");
-	dukglue_register_method(ctx, &Vector2f::Dot, "dot");
-	dukglue_register_method(ctx, &Vector2f::Distance, "distance");
-	dukglue_register_method(ctx, &Vector2f::GetX, "x");
-	dukglue_register_method(ctx, &Vector2f::GetY, "y");
-
-	// Can use the standard duktape API to register c_functions if necessary
+	if (!ctx2) {
+		printf("Failed to create a Duktape heap.\n");
+		exit(1);
+	}
+	
 	ScriptManager sm;
-	duk_push_c_function(ctx, sm.native_print, DUK_VARARGS);
-	duk_put_global_string(ctx, "print");
 
 	// Load script from file, evaluate script
 	sm.load_script_from_file(ctx, "colorScript.js");
+	sm.load_script_from_file(ctx2, "eventScript.js");
 	if (duk_peval(ctx) != 0) {
 		printf("Error occured: %s\n", duk_safe_to_string(ctx, -1));
 		duk_destroy_heap(ctx);
 		return 1;
 	}
-	duk_pop(ctx); // Ignore return, clear stack
+	if (duk_peval(ctx2) != 0) {
+		printf("Error occured: %s\n", duk_safe_to_string(ctx2, -1));
+		duk_destroy_heap(ctx2);
+		return 1;
+	}
+	duk_pop(ctx);
+	duk_pop(ctx2);
 
-	duk_push_global_object(ctx);			
-	duk_get_prop_string(ctx, -1, "myTest"); 
+	duk_push_global_object(ctx);
+	duk_push_global_object(ctx2);
+	duk_get_prop_string(ctx, -1, "myTest");
+	duk_get_prop_string(ctx2, -1, "myEvent");
 											
 	Vector2f a(2, 3); Vector2f b(4, 5);
 	dukglue_push(ctx, &a);
 	dukglue_push(ctx, &b);
+
+	dukglue_push(ctx2, &a);
+	dukglue_push(ctx2, &b);
 
 	if (duk_pcall(ctx, 2) != 0)
 		printf("Error here: %s\n", duk_safe_to_string(ctx, -1));
 	else
 		printf("%s\n", duk_safe_to_string(ctx, -1));
 
+	if (duk_pcall(ctx2, 2) != 0)
+		printf("Error here: %s\n", duk_safe_to_string(ctx2, -1));
+	else
+		printf("%s\n", duk_safe_to_string(ctx2, -1));
+
 	string color_red = "red";
 	string color_blue = "blue";
 	string color_green = "green";
 	if (color_red.compare(duk_safe_to_string(ctx, -1)) == 0 ) {
 		cout << "Red Detected";
+		c1.circle.setFillColor(sf::Color::Red);
 	}
 	else if (color_blue.compare(duk_safe_to_string(ctx, -1)) == 0) {
+		c1.circle.setFillColor(sf::Color::Blue);
 		cout << "Blue Detected";
 	}
 	else if (color_green.compare(duk_safe_to_string(ctx, -1)) == 0) {
 		cout << "Green Detected";
+		c1.circle.setFillColor(sf::Color::Green);
 	}
 	else {
 		cout << "No color Detected";
 	}
 
+	bool eventOutput = false;
+	string output_false = "false";
+	string output_true = "true";
+	if (output_false.compare(duk_safe_to_string(ctx2, -1)) == 0) {
+		cout << "\nCollision handling processed as Normal";
+		eventOutput = false;
+	}
+	else if (output_true.compare(duk_safe_to_string(ctx2, -1)) == 0) {
+		cout << "\n Collision handling processing modified through script, game never ends!";
+		eventOutput = true;
+	}
+	else {
+		cout << "\n cannot process script value, make sure you've returned the correct value";
+	}
+
 	duk_pop(ctx);
+	duk_pop(ctx2);
 
 	duk_destroy_heap(ctx);
+	duk_destroy_heap(ctx2);
 
 	// -------------------------------------------------
 
@@ -559,7 +576,8 @@ int main() {
 		if (!isPlayback) {
 			bool collision = processCharacterMovingPlatformCollision(c1, mp1);
 			if (collision)
-				gameOver = true;
+				if (!eventOutput)
+					gameOver = true;
 			bool char_death_zone1 = processCharacterDeathZoneCollision(c1, dz1);
 			if (char_death_zone1) {
 				cout << "Death Zone Collision Occured" << endl;

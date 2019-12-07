@@ -146,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="colorScript.js" />
+    <None Include="eventScript.js" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
